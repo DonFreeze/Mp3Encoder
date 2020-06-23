@@ -5,12 +5,7 @@
 
 class FileName
 {
-   /* public:
-    enum Status
-    {
 
-    }
-*/
     public:
         FileName(std::string path, std::string name) : path(path), name(name) {}
         virtual ~FileName();
@@ -18,9 +13,8 @@ class FileName
         inline std::string getNameWav() { return name; }
         inline std::string getNameWavWithPath() { return path + "/" + name; };
          std::string getNameMp3WithPath() ;
-        // todo get fileStatus();
     private:
-        std::string name;
         std::string path;
+        std::string name;
 };
 #endif // FILENAME_H

@@ -4,7 +4,7 @@
 #include "FileNameStore.h"
 #include "FileName.h"
 #include <string>
-
+#include "lame/lame.h"
 
 namespace mp3Encoder
 {
@@ -13,7 +13,7 @@ namespace mp3Encoder
         public:
             WavFinder( ){}
             int findWavInDir(std::string directory);
-            inline FileName getNextWavFile() { return fileStore.getNextFileName();}
+            inline FileName* getNextWavFilePtr() { return fileStore.getNextFileNamePtr();}
 
             int getAvailableFileNumber();
 

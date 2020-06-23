@@ -1,12 +1,13 @@
 #include <string>
 
 #include "Mp3Encoder.h"
+#include <algorithm>
 
-#define multithread
+#define MAX_THREAD_NUMBER 4
 
 using namespace std;
 using namespace mp3Encoder;
-
+/*
 Mp3Encoder::Mp3Encoder()
 {
     //ctor
@@ -17,53 +18,17 @@ Mp3Encoder::~Mp3Encoder()
     //dtor
 }
 
-void Mp3Encoder::encodeFilesInDirectory( string directory )
+
+void Mp3Encoder::encodeWav( string wavFileName, string mp3FileName )
 {
-    wavFinder.findWavInDir(directory);
 
-      // Create a vector of threads
-    std::vector<std::thread> vecOfThreads;
-
-    cout << "Start to encode " << wavFinder.getAvailableFileNumber() << " files " << endl;
-
-    for( int i = 0; i < wavFinder.getAvailableFileNumber(); i++)
-    {
-#ifdef multithread
-         FileName filename = wavFinder.getNextWavFile();
-
-         std::thread th1( this->encodeWav, filename, this );
-        vecOfThreads.push_back(std::move(th1));
-#else
-        encodeWav( wavFinder.getNextWavFile());
-#endif
-    }
-#ifdef multithread
-   for (std::thread & th : vecOfThreads)
-    {
-        // If thread Object is Joinable then Join that thread.
-        if (th.joinable())
-        {
-            cout << "Join Thread ID : "<< th.get_id() << endl;
-            th.join();
-
-        }
-    }
-#endif
-
-}
-
-
-
-void Mp3Encoder::encodeWav( FileName& fileName )
-{
-    cout << "From Thread ID: "<< this_thread::get_id() << " encode wav " << fileName.getNameWav() << endl;
+cout << "hello world "<< wavFileName << mp3FileName << endl;
     int read, write;
 
+    ifstream wavSource( wavFileName, ios::binary);
 
-    ifstream wavSource(fileName.getNameWavWithPath(), ios::binary);
-
-    const char* wavFileNameChar= fileName.getNameWavWithPath().c_str();
-    const char* mp3FileNameChar= fileName.getNameMp3WithPath().c_str();
+    const char* wavFileNameChar= wavFileName.c_str();
+    const char* mp3FileNameChar= mp3FileName.c_str();
 
     FILE *pcm = fopen(wavFileNameChar, "rb");
     FILE *mp3 = fopen(mp3FileNameChar, "wb");
@@ -103,3 +68,60 @@ void Mp3Encoder::encodeWav( FileName& fileName )
    }
 }
 
+*/
+void eraseFromThreadList( std::thread* threadToErase  )
+{
+    auto iterator = find(threadList.begin(), threadList.end(), threadToErase);
+
+    if (iterator != threadList.end())
+    {
+        cout << "News: Remove subscriber from observer list" << endl;
+        threadList.erase(iterator);
+    }
+}
+
+
+/*
+void Mp3Encoder::encodeFilesInDirectory( string directory )
+{
+    wavFinder.findWavInDir(directory);
+
+    // Create a vector of threads
+
+
+    cout << "Start to encode " << wavFinder.getAvailableFileNumber() << " files " << endl;
+
+    while( wavFinder.getAvailableFileNumber())
+    {
+
+        if( threadList.size() < MAX_THREAD_NUMBER )
+        {
+            FileName filename = *wavFinder.getNextWavFilePtr();
+            cout << "threadList.size()  " << threadList.size()  << endl;
+            string s1 = filename.getNameWavWithPath();
+            string s2 =  filename.getNameMp3WithPath();
+
+           // std::thread th1( &Mp3Encoder::encodeWav, this, s1, s2 );
+           // threadList.push_back(std::move(&th1));
+
+        }
+
+        cout << "threadList.size() 2 " << threadList.size()  << endl;
+        for (std::thread* th : threadList)
+        {
+
+        cout << "threadList.size()  inside " << threadList.size()  << endl;
+            // If thread Object is Joinable then Join that thread.
+            if (th->joinable())
+            {
+                eraseFromThreadList( th );
+                cout << "Join Thread ID : "<< th->get_id() << endl;
+                th->join();
+            }
+        }
+
+    }
+
+}
+
+*/

@@ -14,9 +14,9 @@ namespace mp3Encoder
             virtual ~FileNameStore();
             void storeFileName( FileName& fileName );
             inline int getNumberOfFiles() { return fileNameList.size(); }
-            FileName& getNextFileName();
+            FileName* getNextFileNamePtr();
         private:
-            std::vector< FileName > fileNameList;
+            std::vector< FileName* > fileNameList;
          //   std::string directoryPath;
 
     };

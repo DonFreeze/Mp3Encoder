@@ -20,12 +20,12 @@ void FileNameStore::storeFileName( FileName& fileName )
 {
     cout << "store: " << fileName.getNameWav() << endl;
 
-    fileNameList.push_back(fileName);
+    fileNameList.push_back(&fileName);
 }
 
 
 
-FileName& FileNameStore::getNextFileName()
+FileName* FileNameStore::getNextFileNamePtr()
 {
 
    /* if (fileNameList.size() > 0)
@@ -37,9 +37,9 @@ FileName& FileNameStore::getNextFileName()
         cout << "Error vector is empty: "  << endl; // todo error handling
     }*/
 
-    FileName ret = fileNameList.back();
+        FileName* ret = fileNameList.back();
         fileNameList.pop_back();
-        return  ret;
+        return ret;
 
         // TODO exception handling
 }

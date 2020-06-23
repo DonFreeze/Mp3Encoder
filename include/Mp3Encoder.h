@@ -21,19 +21,25 @@
 
 namespace mp3Encoder
 {
+       std::vector<std::thread*> threadList;
 
-    class Mp3Encoder
+       void eraseFromThreadList( std::thread* threadToErase  );
+
+
+    /*class Mp3Encoder
     {
         public:
             Mp3Encoder();
             virtual ~Mp3Encoder();
 
             void encodeFilesInDirectory( std::string directory);
+             static void encodeWav(std::string wavFileName, std::string mp3FileName );
         private:
-            void encodeWav();
-
+            std::vector<std::thread*> threadList;
             WavFinder wavFinder;
-    };
+
+            void eraseFromThreadList( std::thread* threadToErase  );
+    };*/
 
 }
 #endif // MP3ENCODER_H
