@@ -5,17 +5,19 @@
 #include <string>
 #include <fstream>
 
-#include <thread>
 #include <vector>
 
 #include <algorithm>
 
 #include "FileName.h"
+#include <tinythread.h>
 #include "ThreadPool.h"
+
 #include "WavFinder.h"
 #include "lame/lame.h"
 
 #define MAX_THREAD_NUMBER 4
+#define POOL
 
 using namespace std;
 using namespace mp3Encoder;
@@ -72,38 +74,36 @@ void encodeWav( string wavFileName, string mp3FileName )
 int main( int argc, char const *argv[] )
 {
 
-
     if( argc < 2 )
     {
         printf( "Please set a directory when starting the app  \n" );
         return 0;
     }
 
-
     WavFinder wavFinder;
     wavFinder.findWavInDir(static_cast<string>(argv[1]));
 
-    // Create a vector of threads
-
-
     cout << "Start to encode " << wavFinder.getAvailableFileNumber() << " files " << endl;
-
+ #ifdef POOL
     cout << "Instantiate thread pool with  " << thread::hardware_concurrency() << "threads" <<  endl;
     ThreadPool pool(thread::hardware_concurrency());
-
+#endif // POOL
 
     while( wavFinder.getAvailableFileNumber() )
     {
         FileName filename = *wavFinder.getNextWavFilePtr();
-        pool.enqueue( encodeWav, filename.getNameWavWithPath(), filename.getNameMp3WithPath()  );
- #ifdef NO_POOL
-        std::thread th1( encodeWav, filename.getNameWavWithPath(), filename.getNameMp3WithPath() );
+
+ #ifdef POOL
+ pool.enqueue( encodeWav, filename.getNameWavWithPath(), filename.getNameMp3WithPath()  );
+
+#else
+        sthread th1( encodeWav, filename.getNameWavWithPath(), filename.getNameMp3WithPath() );
 
         if (th1.joinable())
         {
             th1.join();
         }
-#endif // NO_POOL
+#endif // NO
     }
 
 

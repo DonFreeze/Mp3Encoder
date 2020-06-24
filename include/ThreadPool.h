@@ -4,12 +4,14 @@
 #include <vector>
 #include <queue>
 #include <memory>
-#include <thread>
-#include <mutex>
+#include <tinythread.h>
+#include <fast_mutex.h>
 #include <condition_variable>
 #include <future>
 #include <functional>
 #include <stdexcept>
+
+using namespace tthread;
 
 class ThreadPool {
 public:
@@ -20,12 +22,12 @@ public:
     ~ThreadPool();
 private:
     // need to keep track of threads so we can join them
-    std::vector< std::thread > workers;
+    std::vector< thread > workers;
     // the task queue
     std::queue< std::function<void()> > tasks;
 
     // synchronization
-    std::mutex queue_mutex;
+    mutex queue_mutex;
     std::condition_variable condition;
     bool stop;
 };
@@ -43,7 +45,7 @@ inline ThreadPool::ThreadPool(size_t threads)
                     std::function<void()> task;
 
                     {
-                        std::unique_lock<std::mutex> lock(this->queue_mutex);
+                        std::unique_lock<mutex> lock(this->queue_mutex);
                         this->condition.wait(lock,
                             [this]{ return this->stop || !this->tasks.empty(); });
                         if(this->stop && this->tasks.empty())
@@ -71,7 +73,7 @@ auto ThreadPool::enqueue(F&& f, Args&&... args)
 
     std::future<return_type> res = task->get_future();
     {
-        std::unique_lock<std::mutex> lock(queue_mutex);
+        std::unique_lock<mutex> lock(queue_mutex);
 
         // don't allow enqueueing after stopping the pool
         if(stop)
@@ -87,11 +89,11 @@ auto ThreadPool::enqueue(F&& f, Args&&... args)
 inline ThreadPool::~ThreadPool()
 {
     {
-        std::unique_lock<std::mutex> lock(queue_mutex);
+        std::unique_lock<mutex> lock(queue_mutex);
         stop = true;
     }
     condition.notify_all();
-    for(std::thread &worker: workers)
+    for(thread &worker: workers)
         worker.join();
 }
 
