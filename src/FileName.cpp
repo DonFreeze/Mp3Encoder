@@ -15,7 +15,7 @@ std::string FileName::getNameWavWithPath()
    return path + "\\" + name;
 #else
     return path + "/" + name;
-#endif // _WIN64
+#endif // _WIN32
 
 }
 
@@ -30,7 +30,7 @@ std::string FileName::getNameMp3WithPath()
     return path + "\\" + mp3Name;
 #else
     return path + "/" + mp3Name;
-#endif // _WIN64
+#endif // _WIN32
 
 
 

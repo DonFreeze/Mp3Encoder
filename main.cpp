@@ -13,10 +13,6 @@
 #include "lame/lame.h"
 #include "pthreadPool/include/ThreadPool.h"
 
-
-#define Windows
-#define POOL
-
 using namespace std;
 using namespace mp3Encoder;
 using namespace threadpool;
@@ -25,6 +21,7 @@ struct argument
 {
     string wav;
     string mp3;
+    int fileNum;
 };
 
 
@@ -69,7 +66,7 @@ void encodeWav( void* arg  )
             fwrite(mp3_buffer, write, 1, mp3);
         } while (read != 0);
 
-        printf("Encoding succeeded, close files. \n" );
+        printf("Encoding file %d succeeded, close files. \n" , fileNames->fileNum );
         fclose(mp3);
         fclose(pcm);
 
@@ -84,11 +81,10 @@ int main( int argc, char const *argv[] )
     SYSTEM_INFO sysinfo;
     GetSystemInfo(&sysinfo);
     size_t numCPU = sysinfo.dwNumberOfProcessors;
+#else
+    size_t numCPU = sysconf(_SC_NPROCESSORS_ONLN);
 #endif // _WIN64
 
-#ifdef __linux
-    size_t numCPU = sysconf(_SC_NPROCESSORS_ONLN);
-#endif // __linux
 
 
 
@@ -102,37 +98,28 @@ int main( int argc, char const *argv[] )
     wavFinder.findWavInDir(static_cast<string>(argv[1]));
 
     cout << "Start to encode " << wavFinder.getAvailableFileNumber() << " files " << endl;
- #ifdef POOL
-    cout << "Instantiate thread pool with  " << numCPU << "threads" <<  endl;
-    ThreadPool threadPool( numCPU );
-#endif // POOL
 
+    ThreadPool threadPool( numCPU );
+
+    int i = 0;
     while( wavFinder.getAvailableFileNumber() )
     {
         FileName filename = *wavFinder.getNextWavFilePtr();
-        argument* argu;
+        argument* argu = new argument();
         argu->wav = filename.getNameWavWithPath();
         argu->mp3 = filename.getNameMp3WithPath();
-
- #ifdef POOL
+        argu->fileNum = i;
 
         Task* task = new Task(&encodeWav,(void*) argu);
-        threadPool.enqueue(task);
-#else
-        sthread th1( encodeWav, filename.getNameWavWithPath(), filename.getNameMp3WithPath() );
 
-        if (th1.joinable())
-        {
-            th1.join();
-        }
-#endif // NO
+        threadPool.enqueue(task);
+        ++i;
     }
 
-#ifdef POOL
     while( threadPool.isRunning() )
     {
     }
-#endif
+
 
     return 0;
 }
