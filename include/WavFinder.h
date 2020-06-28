@@ -4,7 +4,7 @@
 #include "FileNameStore.h"
 #include "FileName.h"
 #include <string>
-#include "lame/lame.h"
+#include "lame.h"
 
 namespace mp3Encoder
 {

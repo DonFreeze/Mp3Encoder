@@ -5,32 +5,39 @@
 #include <string>
 #include <fstream>
 
-#include <vector>
-
-#include <algorithm>
+//#include <vector>
+//#include <algorithm>
 
 #include "FileName.h"
-#include <tinythread.h>
-#include "ThreadPool.h"
-
 #include "WavFinder.h"
 #include "lame/lame.h"
+#include "pthreadPool/include/ThreadPool.h"
 
-#define MAX_THREAD_NUMBER 4
+
+#define Windows
 #define POOL
 
 using namespace std;
 using namespace mp3Encoder;
+using namespace threadpool;
 
-
-void encodeWav( string wavFileName, string mp3FileName )
+struct argument
 {
+    string wav;
+    string mp3;
+};
+
+
+void encodeWav( void* arg  )
+{
+    argument *fileNames = (argument*) arg;
+
     int read, write;
 
-    ifstream wavSource( wavFileName, ios::binary);
+    ifstream wavSource( fileNames->wav, ios::binary);
 
-    const char* wavFileNameChar= wavFileName.c_str();
-    const char* mp3FileNameChar= mp3FileName.c_str();
+    const char* wavFileNameChar= fileNames->wav.c_str();
+    const char* mp3FileNameChar= fileNames->mp3.c_str();
 
     FILE *pcm = fopen(wavFileNameChar, "rb");
     FILE *mp3 = fopen(mp3FileNameChar, "wb");
@@ -73,6 +80,17 @@ void encodeWav( string wavFileName, string mp3FileName )
 
 int main( int argc, char const *argv[] )
 {
+#ifdef _WIN32
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+    size_t numCPU = sysinfo.dwNumberOfProcessors;
+#endif // _WIN64
+
+#ifdef __linux
+    size_t numCPU = sysconf(_SC_NPROCESSORS_ONLN);
+#endif // __linux
+
+
 
     if( argc < 2 )
     {
@@ -85,17 +103,21 @@ int main( int argc, char const *argv[] )
 
     cout << "Start to encode " << wavFinder.getAvailableFileNumber() << " files " << endl;
  #ifdef POOL
-    cout << "Instantiate thread pool with  " << thread::hardware_concurrency() << "threads" <<  endl;
-    ThreadPool pool(thread::hardware_concurrency());
+    cout << "Instantiate thread pool with  " << numCPU << "threads" <<  endl;
+    ThreadPool threadPool( numCPU );
 #endif // POOL
 
     while( wavFinder.getAvailableFileNumber() )
     {
         FileName filename = *wavFinder.getNextWavFilePtr();
+        argument* argu;
+        argu->wav = filename.getNameWavWithPath();
+        argu->mp3 = filename.getNameMp3WithPath();
 
  #ifdef POOL
- pool.enqueue( encodeWav, filename.getNameWavWithPath(), filename.getNameMp3WithPath()  );
 
+        Task* task = new Task(&encodeWav,(void*) argu);
+        threadPool.enqueue(task);
 #else
         sthread th1( encodeWav, filename.getNameWavWithPath(), filename.getNameMp3WithPath() );
 
@@ -106,6 +128,11 @@ int main( int argc, char const *argv[] )
 #endif // NO
     }
 
+#ifdef POOL
+    while( threadPool.isRunning() )
+    {
+    }
+#endif
 
     return 0;
 }

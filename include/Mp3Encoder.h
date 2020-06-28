@@ -21,9 +21,9 @@
 
 namespace mp3Encoder
 {
-       std::vector<std::thread*> threadList;
+     //  std::vector<std::thread*> threadList;
 
-       void eraseFromThreadList( std::thread* threadToErase  );
+    //   void eraseFromThreadList( std::thread* threadToErase  );
 
 
     /*class Mp3Encoder

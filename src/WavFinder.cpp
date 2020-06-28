@@ -1,8 +1,10 @@
-#include <string>
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
 #include <iostream>
 #include <string>
 #include <dirent.h>
-
+#include <locale.h>
 #include "FileName.h"
 #include "FileNameStore.h"
 #include "WavFinder.h"

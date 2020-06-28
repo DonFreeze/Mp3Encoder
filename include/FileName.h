@@ -11,7 +11,7 @@ class FileName
         virtual ~FileName();
 
         inline std::string getNameWav() { return name; }
-        inline std::string getNameWavWithPath() { return path + "/" + name; };
+         std::string getNameWavWithPath();
          std::string getNameMp3WithPath() ;
     private:
         std::string path;

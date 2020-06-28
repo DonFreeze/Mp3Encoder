@@ -69,17 +69,6 @@ cout << "hello world "<< wavFileName << mp3FileName << endl;
 }
 
 */
-void eraseFromThreadList( std::thread* threadToErase  )
-{
-    auto iterator = find(threadList.begin(), threadList.end(), threadToErase);
-
-    if (iterator != threadList.end())
-    {
-        cout << "News: Remove subscriber from observer list" << endl;
-        threadList.erase(iterator);
-    }
-}
-
 
 /*
 void Mp3Encoder::encodeFilesInDirectory( string directory )
