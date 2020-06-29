@@ -20,7 +20,7 @@ namespace threadpool
     class ThreadPool
     {
     public:
-        ThreadPool( std::size_t numThreads);
+        ThreadPool( size_t numThreads);
         ~ThreadPool();
         void enqueue(Task* task);
         void* executeThread();
@@ -30,16 +30,11 @@ namespace threadpool
         int start();
         void stop();
 
-
-        std::size_t numThreads;
-
+        size_t numThreads;
         Mutex mTaskMutex;
-
         CondVar mTaskCondVar;
-
-        std::vector<pthread_t> mThreads;
-        std::deque<Task*> mTasks;
-
+        vector<pthread_t> mThreads;
+        deque<Task*> mTasks;
         volatile int mPoolState;
     };
 

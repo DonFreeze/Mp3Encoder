@@ -5,9 +5,6 @@
 #include <string>
 #include <fstream>
 
-//#include <vector>
-//#include <algorithm>
-
 #include "FileName.h"
 #include "WavFinder.h"
 #include "lame/lame.h"
@@ -17,17 +14,17 @@ using namespace std;
 using namespace mp3Encoder;
 using namespace threadpool;
 
-struct argument
+typedef struct argument
 {
     string wav;
     string mp3;
     int fileNum;
-};
+} argument_t;
 
 
-void encodeWav( void* arg  )
+void encodeWav( void* arg )
 {
-    argument *fileNames = (argument*) arg;
+    argument_t *fileNames = ( argument_t* ) arg;
 
     int read, write;
 
@@ -59,12 +56,12 @@ void encodeWav( void* arg  )
         do
         {
             read = fread(pcm_buffer, 2*sizeof(short int), PCM_SIZE, pcm);
-            if (read == 0)
+            if( read == 0 )
                 write = lame_encode_flush(lame, mp3_buffer, MP3_SIZE);
             else
                 write = lame_encode_buffer_interleaved(lame, pcm_buffer, read, mp3_buffer, MP3_SIZE);
             fwrite(mp3_buffer, write, 1, mp3);
-        } while (read != 0);
+        } while ( read != 0 );
 
         printf("Encoding file %d succeeded, close files. \n" , fileNames->fileNum );
         fclose(mp3);
@@ -83,10 +80,11 @@ int main( int argc, char const *argv[] )
     size_t numCPU = sysinfo.dwNumberOfProcessors;
 #else
     size_t numCPU = sysconf(_SC_NPROCESSORS_ONLN);
-#endif // _WIN64
+#endif // _WIN32
 
-
-
+    cout << "------------------------------------------------------- " << endl;
+    cout << "                     WAV TO MP3 Encoder                 " << endl;
+    cout << "------------------------------------------------------- " << endl;
 
     if( argc < 2 )
     {
@@ -95,9 +93,7 @@ int main( int argc, char const *argv[] )
     }
 
     WavFinder wavFinder;
-    wavFinder.findWavInDir(static_cast<string>(argv[1]));
-
-    cout << "Start to encode " << wavFinder.getAvailableFileNumber() << " files " << endl;
+    wavFinder.findWavInDir( static_cast<string>( argv[1] ) );
 
     ThreadPool threadPool( numCPU );
 
@@ -105,20 +101,18 @@ int main( int argc, char const *argv[] )
     while( wavFinder.getAvailableFileNumber() )
     {
         FileName filename = *wavFinder.getNextWavFilePtr();
-        argument* argu = new argument();
-        argu->wav = filename.getNameWavWithPath();
-        argu->mp3 = filename.getNameMp3WithPath();
-        argu->fileNum = i;
+        argument_t* argument = new argument_t();
+        argument->wav = filename.getNameWavWithPath();
+        argument->mp3 = filename.getNameMp3WithPath();
+        argument->fileNum = i;
 
-        Task* task = new Task(&encodeWav,(void*) argu);
+        Task* task = new Task(&encodeWav,(void*) argument);
 
         threadPool.enqueue(task);
         ++i;
     }
 
-    while( threadPool.isRunning() )
-    {
-    }
+    while( threadPool.isRunning() ){};
 
 
     return 0;

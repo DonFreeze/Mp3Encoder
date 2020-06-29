@@ -1,4 +1,3 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -18,7 +17,7 @@ int WavFinder::findWavInDir(std::string directory)
     DIR *d;
     struct dirent *dir;
     int foundWavNumber = 0;
-    cout << "WavFinder search directory: " << directory << endl;
+    cout << "- search directory: " << directory << endl;
     d = opendir( directory.c_str() );
     if( d )
     {
@@ -32,6 +31,7 @@ int WavFinder::findWavInDir(std::string directory)
             }
         }
     }
+    cout << "- found " << directory << " wav files" << endl;
     return foundWavNumber;
 }
 

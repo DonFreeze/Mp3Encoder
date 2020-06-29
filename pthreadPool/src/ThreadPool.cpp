@@ -6,13 +6,13 @@ using namespace threadpool;
 
 ThreadPool::ThreadPool(std::size_t numThreads) : numThreads(numThreads)
 {
-    cout << "Constructed ThreadPool of size " << numThreads << endl;
+    cout << "Create ThreadPool of size " << numThreads << endl;
     this->start();
 }
 
 ThreadPool::~ThreadPool()
 {
-    stop();
+    this->stop();
 }
 
 
@@ -71,18 +71,18 @@ void* ThreadPool::executeThread()
     Task* task = NULL;
     auto id = pthread_self();
     cout << "Starting thread "<< &id << endl;
-    while(true)
+    while( true )
     {
         mTaskMutex.lock();
-        while ((mPoolState != STOPPED) && (mTasks.empty()))
+        while( ( mPoolState != STOPPED ) && ( mTasks.empty() ) )
         {
             mTaskCondVar.wait(mTaskMutex.get_mutex_ptr());
         }
 
-        if (mPoolState == STOPPED)
+        if( mPoolState == STOPPED )
         {
-              mTaskMutex.unlock();
-              pthread_exit(NULL);
+            mTaskMutex.unlock();
+            pthread_exit(NULL);
         }
 
         task = mTasks.front();
@@ -92,15 +92,13 @@ void* ThreadPool::executeThread()
         (*task)();
         delete task;
     }
-    return NULL;
+   // return NULL;
 }
 
 void ThreadPool::enqueue(Task* task)
 {
   mTaskMutex.lock();
-
-  mTasks.push_back(task);
+  mTasks.push_back( task );
   mTaskCondVar.signal();
-
   mTaskMutex.unlock();
 }

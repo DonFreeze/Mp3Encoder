@@ -1,20 +1,18 @@
-#ifndef FILENAME_H
-#define FILENAME_H
+#pragma once
 
 #include <string>
 
+using namespace std;
+
 class FileName
 {
-
     public:
-        FileName(std::string path, std::string name) : path(path), name(name) {}
-        virtual ~FileName();
-
-        inline std::string getNameWav() { return name; }
-         std::string getNameWavWithPath();
-         std::string getNameMp3WithPath() ;
+        FileName( string path, string name) : path(path), name(name) {}
+        inline string getNameWav() { return this->name; }
+        string getNameWavWithPath();
+        string getNameMp3WithPath();
     private:
-        std::string path;
-        std::string name;
+        string path;
+        string name;
 };
-#endif // FILENAME_H
+
