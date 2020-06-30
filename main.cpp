@@ -62,8 +62,8 @@ void encodeWav( void* arg )
                 write = lame_encode_buffer_interleaved(lame, pcm_buffer, read, mp3_buffer, MP3_SIZE);
             fwrite(mp3_buffer, write, 1, mp3);
         } while ( read != 0 );
-
-        printf("Encoding file %d succeeded, close files. \n" , fileNames->fileNum );
+        cout << "." ;
+      //  cout << "Encoding file %d succeeded, close files.  " << fileNames->fileNum << endl;
         fclose(mp3);
         fclose(pcm);
 
@@ -88,32 +88,38 @@ int main( int argc, char const *argv[] )
 
     if( argc < 2 )
     {
-        printf( "Please set a directory when starting the app  \n" );
+        cout << "Please set a directory when starting the app " << endl;
         return 0;
     }
 
     WavFinder wavFinder;
-    wavFinder.findWavInDir( static_cast<string>( argv[1] ) );
 
-    ThreadPool threadPool( numCPU );
-
-    int i = 0;
-    while( wavFinder.getAvailableFileNumber() )
+    if( wavFinder.findWavInDir( static_cast<string>( argv[1] ) ) > 0 )
     {
-        FileName filename = *wavFinder.getNextWavFilePtr();
-        argument_t* argument = new argument_t();
-        argument->wav = filename.getNameWavWithPath();
-        argument->mp3 = filename.getNameMp3WithPath();
-        argument->fileNum = i;
 
-        Task* task = new Task(&encodeWav,(void*) argument);
+        ThreadPool threadPool( numCPU, wavFinder.getAvailableFileNumber() );
+        cout << "- Start to encode files:  ";
+        int i = 0;
+        while( wavFinder.getAvailableFileNumber() )
+        {
+            FileName filename = *wavFinder.getNextWavFilePtr();
+            argument_t* argument = new argument_t();
+            argument->wav = filename.getNameWavWithPath();
+            argument->mp3 = filename.getNameMp3WithPath();
+            argument->fileNum = i;
 
-        threadPool.enqueue(task);
-        ++i;
+            Task* task = new Task(&encodeWav,(void*) argument);
+
+            threadPool.enqueue(task);
+            ++i;
+        }
+        while( threadPool.isRunning() ){}
+
     }
 
-    while( threadPool.isRunning() ){};
 
+
+    cout << endl << "- Encoding completed  " << endl;
 
     return 0;
 }

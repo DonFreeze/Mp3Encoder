@@ -11,9 +11,9 @@ namespace mp3Encoder
     {
         public:
             WavFinder(){}
-            int findWavInDir( std::string directory );
+            unsigned int findWavInDir( std::string directory );
+            unsigned int getAvailableFileNumber();
             inline FileName* getNextWavFilePtr() { return fileStore.getNextFileNamePtr(); }
-            int getAvailableFileNumber();
         private:
             bool isWav( std::string fileName );
             FileNameStore fileStore;

@@ -12,12 +12,12 @@ using namespace mp3Encoder;
 using namespace std;
 
 
-int WavFinder::findWavInDir(std::string directory)
+unsigned int WavFinder::findWavInDir(std::string directory)
 {
     DIR *d;
     struct dirent *dir;
     int foundWavNumber = 0;
-    cout << "- search directory: " << directory << endl;
+    cout << "- Search directory: " << directory << endl;
     d = opendir( directory.c_str() );
     if( d )
     {
@@ -31,7 +31,7 @@ int WavFinder::findWavInDir(std::string directory)
             }
         }
     }
-    cout << "- found " << directory << " wav files" << endl;
+    cout << "- Found " << foundWavNumber << " wav files" << endl;
     return foundWavNumber;
 }
 
@@ -54,7 +54,7 @@ bool WavFinder::isWav( string fileName )
    return ret;
 }
 
-int WavFinder::getAvailableFileNumber()
+unsigned int WavFinder::getAvailableFileNumber()
 {
     return fileStore.getNumberOfFiles();
 }

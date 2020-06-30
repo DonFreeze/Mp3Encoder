@@ -20,7 +20,7 @@ namespace threadpool
     class ThreadPool
     {
     public:
-        ThreadPool( size_t numThreads);
+        ThreadPool( size_t MaxThreads, size_t numTasks);
         ~ThreadPool();
         void enqueue(Task* task);
         void* executeThread();

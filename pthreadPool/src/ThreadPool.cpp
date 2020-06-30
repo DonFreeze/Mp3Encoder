@@ -4,9 +4,10 @@
 using namespace std;
 using namespace threadpool;
 
-ThreadPool::ThreadPool(std::size_t numThreads) : numThreads(numThreads)
+ThreadPool::ThreadPool( size_t MaxThreads,  size_t numTasks)
 {
-    cout << "Create ThreadPool of size " << numThreads << endl;
+    numThreads = MaxThreads > numTasks ? numTasks : MaxThreads;
+    cout << "- Create ThreadPool of size " << numThreads << endl;
     this->start();
 }
 
@@ -38,8 +39,6 @@ int ThreadPool::start()
     }
     mThreads.push_back(tid);
   }
-  cout << numThreads << " threads created by the thread pool" << endl;
-
   return 0;
 }
 
@@ -56,7 +55,7 @@ void ThreadPool::stop()
         void* result;
         pthread_join(thread, &result);
         mTaskCondVar.broadcast();
-        cout << "join Thread"  << endl;
+       // cout << "join Thread"  << endl;
     }
 }
 
@@ -70,7 +69,7 @@ void* ThreadPool::executeThread()
 {
     Task* task = NULL;
     auto id = pthread_self();
-    cout << "Starting thread "<< &id << endl;
+    //cout << "Starting thread "<< &id << endl;
     while( true )
     {
         mTaskMutex.lock();
