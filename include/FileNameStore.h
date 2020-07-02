@@ -6,7 +6,7 @@
 
 using namespace std;
 
-namespace mp3Encoder
+namespace mp3encoder
 {
     class FileNameStore
     {

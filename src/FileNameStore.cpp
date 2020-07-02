@@ -3,8 +3,7 @@
 #include <string>
 
 using namespace std;
-using namespace mp3Encoder;
-
+using namespace mp3encoder;
 
 
 void FileNameStore::storeFileName( FileName& fileName )

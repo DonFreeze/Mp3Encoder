@@ -4,11 +4,15 @@
 #include <string>
 #include <dirent.h>
 #include <locale.h>
+
+
+#include <fstream>
+
 #include "FileName.h"
 #include "FileNameStore.h"
 #include "WavFinder.h"
 
-using namespace mp3Encoder;
+using namespace mp3encoder;
 using namespace std;
 
 

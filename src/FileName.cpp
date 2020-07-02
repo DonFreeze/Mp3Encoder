@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 
+using namespace mp3encoder;
 
 std::string FileName::getNameWavWithPath()
 {

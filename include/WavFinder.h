@@ -5,12 +5,12 @@
 #include "FileName.h"
 #include "lame.h"
 
-namespace mp3Encoder
+namespace mp3encoder
 {
     class WavFinder
     {
         public:
-            WavFinder(){}
+
             unsigned int findWavInDir( std::string directory );
             unsigned int getAvailableFileNumber();
             inline FileName* getNextWavFilePtr() { return fileStore.getNextFileNamePtr(); }
