@@ -1,24 +1,20 @@
-#ifndef FILENAMESTORE_H
-#define FILENAMESTORE_H
+#pragma once
 
-#include "FileName.h"
 #include <string>
 #include <vector>
+#include "FileName.h"
 
-namespace mp3Encoder
+using namespace std;
+
+namespace mp3encoder
 {
     class FileNameStore
     {
         public:
-            FileNameStore( ) ;
-            virtual ~FileNameStore();
             void storeFileName( FileName& fileName );
-            inline int getNumberOfFiles() { return fileNameList.size(); }
+            inline int getNumberOfFiles() { return this->fileNameList.size(); }
             FileName* getNextFileNamePtr();
         private:
-            std::vector< FileName* > fileNameList;
-         //   std::string directoryPath;
-
+            vector< FileName* > fileNameList;
     };
 }
-#endif // FILENAMESTORE_H

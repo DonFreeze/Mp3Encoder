@@ -1,16 +1,16 @@
-#include <string>
-
 #include "Mp3Encoder.h"
-#include <algorithm>
 
-#define MAX_THREAD_NUMBER 4
+#include <string>
+#include <fstream>
 
-using namespace std;
-using namespace mp3Encoder;
-/*
+#include "WavFinder.h"
+
+using namespace mp3encoder;
+
+
 Mp3Encoder::Mp3Encoder()
 {
-    //ctor
+
 }
 
 Mp3Encoder::~Mp3Encoder()
@@ -19,16 +19,18 @@ Mp3Encoder::~Mp3Encoder()
 }
 
 
-void Mp3Encoder::encodeWav( string wavFileName, string mp3FileName )
-{
 
-cout << "hello world "<< wavFileName << mp3FileName << endl;
+void Mp3Encoder::encodeWav( void* arg )
+{
+    Argument *fileNames = ( Argument* ) arg;
+
     int read, write;
 
-    ifstream wavSource( wavFileName, ios::binary);
 
-    const char* wavFileNameChar= wavFileName.c_str();
-    const char* mp3FileNameChar= mp3FileName.c_str();
+    ifstream wavSource( fileNames->wav, ios::binary);
+
+    const char* wavFileNameChar= fileNames->wav.c_str();
+    const char* mp3FileNameChar= fileNames->mp3.c_str();
 
     FILE *pcm = fopen(wavFileNameChar, "rb");
     FILE *mp3 = fopen(mp3FileNameChar, "wb");
@@ -53,14 +55,14 @@ cout << "hello world "<< wavFileName << mp3FileName << endl;
         do
         {
             read = fread(pcm_buffer, 2*sizeof(short int), PCM_SIZE, pcm);
-            if (read == 0)
+            if( read == 0 )
                 write = lame_encode_flush(lame, mp3_buffer, MP3_SIZE);
             else
                 write = lame_encode_buffer_interleaved(lame, pcm_buffer, read, mp3_buffer, MP3_SIZE);
             fwrite(mp3_buffer, write, 1, mp3);
-        } while (read != 0);
+        } while ( read != 0 );
+        cout << "." ;
 
-        printf("\n Encoding succeeded, close files. \n" );
         fclose(mp3);
         fclose(pcm);
 
@@ -68,49 +70,35 @@ cout << "hello world "<< wavFileName << mp3FileName << endl;
    }
 }
 
-*/
-
-/*
-void Mp3Encoder::encodeFilesInDirectory( string directory )
+void Mp3Encoder::startEncoding( string path, size_t numCPU )
 {
-    wavFinder.findWavInDir(directory);
-
-    // Create a vector of threads
-
-
-    cout << "Start to encode " << wavFinder.getAvailableFileNumber() << " files " << endl;
-
-    while( wavFinder.getAvailableFileNumber())
+    try
     {
-
-        if( threadList.size() < MAX_THREAD_NUMBER )
-        {
-            FileName filename = *wavFinder.getNextWavFilePtr();
-            cout << "threadList.size()  " << threadList.size()  << endl;
-            string s1 = filename.getNameWavWithPath();
-            string s2 =  filename.getNameMp3WithPath();
-
-           // std::thread th1( &Mp3Encoder::encodeWav, this, s1, s2 );
-           // threadList.push_back(std::move(&th1));
-
-        }
-
-        cout << "threadList.size() 2 " << threadList.size()  << endl;
-        for (std::thread* th : threadList)
+        if( wavFinder.findWavInDir( path ) > 0 )
         {
 
-        cout << "threadList.size()  inside " << threadList.size()  << endl;
-            // If thread Object is Joinable then Join that thread.
-            if (th->joinable())
+            ThreadPool threadPool( numCPU, wavFinder.getAvailableFileNumber() );
+            cout << "- Start to encode files:  ";
+            int i = 0;
+            while( wavFinder.getAvailableFileNumber() )
             {
-                eraseFromThreadList( th );
-                cout << "Join Thread ID : "<< th->get_id() << endl;
-                th->join();
-            }
-        }
+                FileName filename = *wavFinder.getNextWavFilePtr();
+                Argument* argument = new Argument();
+                argument->wav = filename.getNameWavWithPath();
+                argument->mp3 = filename.getNameMp3WithPath();
+                Task* task = new Task(&encodeWav,(void*) argument);
 
+                threadPool.enqueue(task);
+                ++i;
+            }
+            while( threadPool.isRunning() ){}
+
+        }
     }
+    catch( exception& )
+    {
+        cout << "Could not create wavFinder Instance" << endl;
+    }
+    cout << endl << "- Encoding completed  " << endl;
 
 }
-
-*/

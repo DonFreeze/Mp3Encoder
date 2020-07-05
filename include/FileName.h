@@ -1,20 +1,20 @@
-#ifndef FILENAME_H
-#define FILENAME_H
+#pragma once
 
 #include <string>
 
-class FileName
+using namespace std;
+namespace mp3encoder
 {
+    class FileName
+    {
+        public:
+            FileName( string path, string name) : path(path), name(name) {}
+            inline string getNameWav() { return this->name; }
+            string getNameWavWithPath();
+            string getNameMp3WithPath();
+        private:
+            string path;
+            string name;
+    };
 
-    public:
-        FileName(std::string path, std::string name) : path(path), name(name) {}
-        virtual ~FileName();
-
-        inline std::string getNameWav() { return name; }
-         std::string getNameWavWithPath();
-         std::string getNameMp3WithPath() ;
-    private:
-        std::string path;
-        std::string name;
-};
-#endif // FILENAME_H
+}

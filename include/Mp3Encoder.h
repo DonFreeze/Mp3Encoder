@@ -1,45 +1,38 @@
 #ifndef MP3ENCODER_H
 #define MP3ENCODER_H
 
-#include <ctype.h>
-#include <stdio.h>
-#include <iostream>
-
 #include "FileName.h"
-
-
-#include "Mp3Encoder.h"
-#include <string>
-#include <fstream>
-
-#include <thread>
-#include <vector>
-#include <string>
 #include "WavFinder.h"
+#include "../lame/lame.h"
+#include "../pthreadPool/include/ThreadPool.h"
+
+using namespace threadpool;
 
 
-
-namespace mp3Encoder
+namespace mp3encoder
 {
-     //  std::vector<std::thread*> threadList;
+    typedef struct
+    {
+        string wav;
+        string mp3;
+        int fileNum;
+    } Argument;
 
-    //   void eraseFromThreadList( std::thread* threadToErase  );
-
-
-    /*class Mp3Encoder
+    class Mp3Encoder
     {
         public:
-            Mp3Encoder();
+            Mp3Encoder( );
             virtual ~Mp3Encoder();
-
-            void encodeFilesInDirectory( std::string directory);
-             static void encodeWav(std::string wavFileName, std::string mp3FileName );
+            void startEncoding(string path, size_t numCpu  );
+        protected:
+            static void encodeWav( void* arg );
         private:
-            std::vector<std::thread*> threadList;
-            WavFinder wavFinder;
 
-            void eraseFromThreadList( std::thread* threadToErase  );
-    };*/
+        WavFinder wavFinder;
+        FileNameStore fileNameStore;
 
+    };
 }
+
+
 #endif // MP3ENCODER_H

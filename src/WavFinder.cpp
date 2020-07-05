@@ -1,24 +1,27 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
 #include <string>
 #include <dirent.h>
 #include <locale.h>
+
+
+#include <fstream>
+
 #include "FileName.h"
 #include "FileNameStore.h"
 #include "WavFinder.h"
 
-using namespace mp3Encoder;
+using namespace mp3encoder;
 using namespace std;
 
 
-int WavFinder::findWavInDir(std::string directory)
+unsigned int WavFinder::findWavInDir(std::string directory)
 {
     DIR *d;
     struct dirent *dir;
     int foundWavNumber = 0;
-    cout << "WavFinder search directory: " << directory << endl;
+    cout << "- Search directory: " << directory << endl;
     d = opendir( directory.c_str() );
     if( d )
     {
@@ -32,6 +35,7 @@ int WavFinder::findWavInDir(std::string directory)
             }
         }
     }
+    cout << "- Found " << foundWavNumber << " wav files" << endl;
     return foundWavNumber;
 }
 
@@ -54,7 +58,7 @@ bool WavFinder::isWav( string fileName )
    return ret;
 }
 
-int WavFinder::getAvailableFileNumber()
+unsigned int WavFinder::getAvailableFileNumber()
 {
     return fileStore.getNumberOfFiles();
 }

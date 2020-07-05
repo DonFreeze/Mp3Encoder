@@ -4,15 +4,16 @@
 using namespace std;
 using namespace threadpool;
 
-ThreadPool::ThreadPool(std::size_t numThreads) : numThreads(numThreads)
+ThreadPool::ThreadPool( size_t MaxThreads,  size_t numTasks)
 {
-    cout << "Constructed ThreadPool of size " << numThreads << endl;
+    numThreads = MaxThreads > numTasks ? numTasks : MaxThreads;
+    cout << "- Create ThreadPool of size " << numThreads << endl;
     this->start();
 }
 
 ThreadPool::~ThreadPool()
 {
-    stop();
+    this->stop();
 }
 
 
@@ -38,8 +39,6 @@ int ThreadPool::start()
     }
     mThreads.push_back(tid);
   }
-  cout << numThreads << " threads created by the thread pool" << endl;
-
   return 0;
 }
 
@@ -56,7 +55,7 @@ void ThreadPool::stop()
         void* result;
         pthread_join(thread, &result);
         mTaskCondVar.broadcast();
-        cout << "join Thread"  << endl;
+       // cout << "join Thread"  << endl;
     }
 }
 
@@ -69,20 +68,20 @@ bool ThreadPool::isRunning()
 void* ThreadPool::executeThread()
 {
     Task* task = NULL;
-    auto id = pthread_self();
-    cout << "Starting thread "<< &id << endl;
-    while(true)
+    //auto id = pthread_self();
+    //cout << "Starting thread "<< &id << endl;
+    while( true )
     {
         mTaskMutex.lock();
-        while ((mPoolState != STOPPED) && (mTasks.empty()))
+        while( ( mPoolState != STOPPED ) && ( mTasks.empty() ) )
         {
             mTaskCondVar.wait(mTaskMutex.get_mutex_ptr());
         }
 
-        if (mPoolState == STOPPED)
+        if( mPoolState == STOPPED )
         {
-              mTaskMutex.unlock();
-              pthread_exit(NULL);
+            mTaskMutex.unlock();
+            pthread_exit(NULL);
         }
 
         task = mTasks.front();
@@ -92,15 +91,13 @@ void* ThreadPool::executeThread()
         (*task)();
         delete task;
     }
-    return NULL;
+   // return NULL;
 }
 
 void ThreadPool::enqueue(Task* task)
 {
   mTaskMutex.lock();
-
-  mTasks.push_back(task);
+  mTasks.push_back( task );
   mTaskCondVar.signal();
-
   mTaskMutex.unlock();
 }
