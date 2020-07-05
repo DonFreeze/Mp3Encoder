@@ -3,14 +3,15 @@ using namespace threadpool;
 
 void Task::operator()()
 {
-    (*m_fn_ptr)(m_arg);
-    if (m_arg != NULL)
+    (* funcPtr )( arg );
+
+    if ( arg != NULL )
     {
-        delete m_arg;
+        delete arg;
     }
 }
 
 void Task::run()
 {
-    (*m_fn_ptr)(m_arg);
+    (*funcPtr)( arg );
 }

@@ -1,3 +1,7 @@
+/*
+ *	Copyright (c) 2020 Lukas Becker
+ */
+
 #include <ctype.h>
 #include <stdio.h>
 #include <iostream>
@@ -32,7 +36,7 @@ int main( int argc, char const *argv[] )
     }
 
     Mp3Encoder encoder;
-    encoder.startEncoding( static_cast<string>( argv[1] ), numCPU*2 ) ;
+    encoder.startEncoding( static_cast<string>( argv[1] ), numCPU ) ;
 
     return 0;
 }
