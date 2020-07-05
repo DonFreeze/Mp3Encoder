@@ -101,7 +101,7 @@ int main( int argc, char const *argv[] )
 
     ThreadPool threadPool( numCPU );
 
-    int i = 0;
+    int i = 1;
     while( wavFinder.getAvailableFileNumber() )
     {
         FileName filename = *wavFinder.getNextWavFilePtr();
