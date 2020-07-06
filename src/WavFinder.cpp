@@ -30,13 +30,13 @@ unsigned int WavFinder::findWavInDir(std::string directory)
     d = opendir( directory.c_str() );
     if( d )
     {
-        while( (dir = readdir(d))!= NULL )
+        while( (dir = readdir(d)) != NULL )
         {
             if( isWav( static_cast<string>(dir->d_name) ) )
             {
                 FileName *fileNamePtr = new FileName( directory , static_cast<string>(dir->d_name) );
                 fileStore.storeFileName( *fileNamePtr );
-                foundWavNumber++;
+                ++foundWavNumber;
             }
         }
     }

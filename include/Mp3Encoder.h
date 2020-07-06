@@ -7,34 +7,24 @@
 
 #pragma once
 
-#include "FileName.h"
+#include <iostream>
+#include <string>
+
 #include "WavFinder.h"
-#include "../lame/lame.h"
-#include "../pthreadPool/include/ThreadPool.h"
-
-using namespace threadpool;
-
+#include "FileNameStore.h"
 
 namespace mp3encoder
 {
-    typedef struct
-    {
-        string wav;
-        string mp3;
-        int fileNum;
-    } FileNameArg;
-
     class Mp3Encoder
     {
         public:
-            void startEncoding(string path, size_t numCpu  );
-        protected:
-            static void encodeWav( void* arg );
+            void startEncoding( string path );
+
         private:
+            WavFinder wavFinder;
+            FileNameStore fileNameStore;
 
-        WavFinder wavFinder;
-        FileNameStore fileNameStore;
-
+            static void encodeWav( void* arg );
     };
 }
 

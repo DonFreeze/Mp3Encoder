@@ -6,6 +6,7 @@ The application will search wav files in a given directory, encodes these files 
   This project uses the Lame encoder library. 
   You need to build and link the library to your project.
 
+
 2. Installation and Usage
   Compile this project using your mingw32 on Windows and GNU compiler on Linux.
 
@@ -14,7 +15,7 @@ The application will search wav files in a given directory, encodes these files 
 
 3. Project status 
   - Features
-    - Search wav files in directory 
+    - Search wav files in directory by the use of the dirent library
     - Encode wav to mp3 using lame encoder library
     - Store mp3 data into files with same name as wav files
     - Usage of multithreading with pthread and thread pool.

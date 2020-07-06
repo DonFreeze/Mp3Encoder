@@ -19,13 +19,11 @@ void FileNameStore::storeFileName( FileName& fileName )
     fileNameList.push_back(&fileName);
 }
 
-
 FileName* FileNameStore::getNextFileNamePtr()
 {
     FileName* ret = fileNameList.back();
     fileNameList.pop_back();
-    return ret;
 
-    // TODO exception handling
+    return ret;
 }
 

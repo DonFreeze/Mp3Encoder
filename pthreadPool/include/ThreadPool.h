@@ -1,13 +1,3 @@
-#pragma once
-
-#include <pthread.h>
-#include <unistd.h>
-#include <deque>
-#include <iostream>
-#include <vector>
-#include <errno.h>
-#include <string.h>
-
 /*
  *	Copyright (c) 2020 Lukas Becker
  *
@@ -18,6 +8,14 @@
  *
  */
 #pragma once
+
+#include <pthread.h>
+#include <unistd.h>
+#include <deque>
+#include <iostream>
+#include <vector>
+#include <errno.h>
+#include <string.h>
 
 #include "Mutex.h"
 #include "Task.h"

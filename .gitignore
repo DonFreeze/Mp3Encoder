@@ -6,6 +6,7 @@
 bin/
 obj/
 wavFiles/
+wav/
 
 
 # Ignoring files by extension
@@ -14,6 +15,7 @@ wavFiles/
 *.cbp
 *.depend
 *.layout
+*.mk
 
 # To ignore a set of files, wildcards can be used, as can be seen above.
 # A sole '*' will ignore everything in your folder, including your .gitignore file.

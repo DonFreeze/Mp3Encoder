@@ -8,23 +8,24 @@
 
 #include <iostream>
 #include <string>
-#include <fstream>
+#include <stdio.h>
 
 #include "Mp3Encoder.h"
 #include "WavFinder.h"
+#include "../lame/lame.h"
+#include "../pthreadPool/include/ThreadPool.h"
 
 using namespace mp3encoder;
+using namespace threadpool;
 using namespace std;
 
 void Mp3Encoder::encodeWav( void* arg )
 {
-    FileNameArg *fileNamesPtr = ( FileNameArg* ) arg;
+    FileName *fileNamePtr = ( FileName* ) arg;
     int read, write;
 
-    ifstream wavSource( fileNamesPtr->wav, ios::binary);
-
-    const char* wavFileNameChar= fileNamesPtr->wav.c_str();
-    const char* mp3FileNameChar= fileNamesPtr->mp3.c_str();
+    const char* wavFileNameChar= fileNamePtr->getNameWavWithPath().c_str();
+    const char* mp3FileNameChar= fileNamePtr->getNameMp3WithPath().c_str();
 
     FILE *pcm = fopen(wavFileNameChar, "rb");
     FILE *mp3 = fopen(mp3FileNameChar, "wb");
@@ -36,8 +37,9 @@ void Mp3Encoder::encodeWav( void* arg )
     unsigned char mp3_buffer[MP3_SIZE];
 
     lame_t lame = lame_init();
-    lame_set_in_samplerate(lame, 44100);
+    lame_set_in_samplerate(lame, 48000);
     lame_set_VBR(lame, vbr_default);
+    lame_set_quality(lame, 5);
 
     if (lame_init_params(lame) < 0)
     {
@@ -55,45 +57,41 @@ void Mp3Encoder::encodeWav( void* arg )
                 write = lame_encode_buffer_interleaved(lame, pcm_buffer, read, mp3_buffer, MP3_SIZE);
             fwrite(mp3_buffer, write, 1, mp3);
         } while ( read != 0 );
+
         cout << "." ;
         cout.flush();
+
         fclose(mp3);
         fclose(pcm);
-
         lame_close(lame);
    }
 }
 
-void Mp3Encoder::startEncoding( string path, size_t numCPU )
+void Mp3Encoder::startEncoding( string path )
 {
-    try
+    #ifdef _WIN32
+        SYSTEM_INFO sysinfo;
+        GetSystemInfo(&sysinfo);
+        size_t numCPU = sysinfo.dwNumberOfProcessors;
+    #else
+        size_t numCPU = sysconf(_SC_NPROCESSORS_ONLN);
+    #endif // _WIN32
+
+
+    if( wavFinder.findWavInDir( path ) > 0 )
     {
-        if( wavFinder.findWavInDir( path ) > 0 )
+        ThreadPool threadPool( numCPU, wavFinder.getAvailableFileNumber() );
+        cout << "- Start to encode files:  ";
+        cout.flush();
+
+        while( wavFinder.getAvailableFileNumber() )
         {
-            ThreadPool threadPool( numCPU, wavFinder.getAvailableFileNumber() );
-            cout << "- Start to encode files:  ";
-            cout.flush();
-            int i = 0;
-            while( wavFinder.getAvailableFileNumber() )
-            {
-                FileName filename = *wavFinder.getNextWavFilePtr();
-                FileNameArg* argPtr = new FileNameArg();
-                argPtr->wav = filename.getNameWavWithPath();
-                argPtr->mp3 = filename.getNameMp3WithPath();
-                Task* task = new Task(&encodeWav,(void*) argPtr);
-
-                threadPool.enqueue(task);
-                ++i;
-            }
-            while( threadPool.isRunning() ){}
-
+            FileName* filenamePtr = wavFinder.getNextWavFilePtr();
+            Task* task = new Task( &encodeWav,(void*) filenamePtr );
+            threadPool.enqueue(task);
         }
-    }
-    catch( exception& )
-    {
-        cout << "Could not create wavFinder Instance" << endl;
-    }
+        while( threadPool.isRunning() ){}
 
-    cout << endl << "- Encoding completed  " << endl;
-
+        cout << endl << "- Encoding completed  " << endl;
+    }
 }

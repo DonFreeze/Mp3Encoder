@@ -37,7 +37,6 @@ void* start_thread(void* arg)
 
 int ThreadPool::start()
 {
-
     mPoolState = STARTED;
     int ret = -1;
     for (auto i = 0u; i < numThreads; ++i)
