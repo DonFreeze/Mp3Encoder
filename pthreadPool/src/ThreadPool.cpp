@@ -1,3 +1,13 @@
+/*
+ *	Copyright (c) 2020 Lukas Becker
+ *
+ *  This file is subject to the terms and conditions defined in
+ *  file 'LICENSE.txt', which is part of this source code package.
+ *
+ *  origin: https://github.com/bilash/threadpool
+ *
+ */
+
 #include "ThreadPool.h"
 #include <iostream>
 
@@ -28,18 +38,20 @@ void* start_thread(void* arg)
 int ThreadPool::start()
 {
 
-  mPoolState = STARTED;
-  int ret = -1;
-  for (auto i = 0u; i < numThreads; ++i) {
-    pthread_t tid;
-    ret = pthread_create(&tid, NULL, start_thread, (void*) this);
-    if (ret != 0) {
-      cerr << "pthread_create() failed: " << ret << endl;
-      return -1;
+    mPoolState = STARTED;
+    int ret = -1;
+    for (auto i = 0u; i < numThreads; ++i)
+    {
+        pthread_t tid;
+        ret = pthread_create(&tid, NULL, start_thread, (void*) this);
+        if (ret != 0)
+        {
+            cerr << "pthread_create() failed: " << ret << endl;
+            return -1;
+        }
+        mThreads.push_back(tid);
     }
-    mThreads.push_back(tid);
-  }
-  return 0;
+    return 0;
 }
 
 void ThreadPool::stop()
@@ -55,7 +67,6 @@ void ThreadPool::stop()
         void* result;
         pthread_join(thread, &result);
         mTaskCondVar.broadcast();
-       // cout << "join Thread"  << endl;
     }
 }
 
@@ -65,11 +76,10 @@ bool ThreadPool::isRunning()
 }
 
 
-void* ThreadPool::executeThread()
+void ThreadPool::executeThread()
 {
     Task* task = NULL;
-    //auto id = pthread_self();
-    //cout << "Starting thread "<< &id << endl;
+
     while( true )
     {
         mTaskMutex.lock();

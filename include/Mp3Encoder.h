@@ -1,3 +1,10 @@
+/*
+ *	Copyright (c) 2020 Lukas Becker
+ *
+ *  This file is subject to the terms and conditions defined in
+ *  file 'LICENSE.txt', which is part of this source code package.
+ */
+
 #pragma once
 
 #include "FileName.h"
@@ -15,7 +22,7 @@ namespace mp3encoder
         string wav;
         string mp3;
         int fileNum;
-    } Argument;
+    } FileNameArg;
 
     class Mp3Encoder
     {

@@ -1,5 +1,9 @@
 /*
  *	Copyright (c) 2020 Lukas Becker
+ *
+ *  This file is subject to the terms and conditions defined in
+ *  file 'LICENSE.txt', which is part of this source code package.
+ *
  */
 
 #include <iostream>
@@ -14,13 +18,13 @@ using namespace std;
 
 void Mp3Encoder::encodeWav( void* arg )
 {
-    Argument *fileNames = ( Argument* ) arg;
+    FileNameArg *fileNamesPtr = ( FileNameArg* ) arg;
     int read, write;
 
-    ifstream wavSource( fileNames->wav, ios::binary);
+    ifstream wavSource( fileNamesPtr->wav, ios::binary);
 
-    const char* wavFileNameChar= fileNames->wav.c_str();
-    const char* mp3FileNameChar= fileNames->mp3.c_str();
+    const char* wavFileNameChar= fileNamesPtr->wav.c_str();
+    const char* mp3FileNameChar= fileNamesPtr->mp3.c_str();
 
     FILE *pcm = fopen(wavFileNameChar, "rb");
     FILE *mp3 = fopen(mp3FileNameChar, "wb");
@@ -66,7 +70,6 @@ void Mp3Encoder::startEncoding( string path, size_t numCPU )
     {
         if( wavFinder.findWavInDir( path ) > 0 )
         {
-
             ThreadPool threadPool( numCPU, wavFinder.getAvailableFileNumber() );
             cout << "- Start to encode files:  ";
             cout.flush();
@@ -74,10 +77,10 @@ void Mp3Encoder::startEncoding( string path, size_t numCPU )
             while( wavFinder.getAvailableFileNumber() )
             {
                 FileName filename = *wavFinder.getNextWavFilePtr();
-                Argument* argument = new Argument();
-                argument->wav = filename.getNameWavWithPath();
-                argument->mp3 = filename.getNameMp3WithPath();
-                Task* task = new Task(&encodeWav,(void*) argument);
+                FileNameArg* argPtr = new FileNameArg();
+                argPtr->wav = filename.getNameWavWithPath();
+                argPtr->mp3 = filename.getNameMp3WithPath();
+                Task* task = new Task(&encodeWav,(void*) argPtr);
 
                 threadPool.enqueue(task);
                 ++i;
@@ -90,6 +93,7 @@ void Mp3Encoder::startEncoding( string path, size_t numCPU )
     {
         cout << "Could not create wavFinder Instance" << endl;
     }
+
     cout << endl << "- Encoding completed  " << endl;
 
 }
