@@ -10,7 +10,6 @@ namespace mp3encoder
     class WavFinder
     {
         public:
-
             unsigned int findWavInDir( std::string directory );
             unsigned int getAvailableFileNumber();
             inline FileName* getNextWavFilePtr() { return fileStore.getNextFileNamePtr(); }

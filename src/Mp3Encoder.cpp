@@ -1,31 +1,21 @@
-#include "Mp3Encoder.h"
+/*
+ *	Copyright (c) 2020 Lukas Becker
+ */
 
+#include <iostream>
 #include <string>
 #include <fstream>
 
+#include "Mp3Encoder.h"
 #include "WavFinder.h"
 
 using namespace mp3encoder;
-
-
-Mp3Encoder::Mp3Encoder()
-{
-
-}
-
-Mp3Encoder::~Mp3Encoder()
-{
-    //dtor
-}
-
-
+using namespace std;
 
 void Mp3Encoder::encodeWav( void* arg )
 {
     Argument *fileNames = ( Argument* ) arg;
-
     int read, write;
-
 
     ifstream wavSource( fileNames->wav, ios::binary);
 
@@ -62,7 +52,7 @@ void Mp3Encoder::encodeWav( void* arg )
             fwrite(mp3_buffer, write, 1, mp3);
         } while ( read != 0 );
         cout << "." ;
-
+        cout.flush();
         fclose(mp3);
         fclose(pcm);
 
@@ -79,6 +69,7 @@ void Mp3Encoder::startEncoding( string path, size_t numCPU )
 
             ThreadPool threadPool( numCPU, wavFinder.getAvailableFileNumber() );
             cout << "- Start to encode files:  ";
+            cout.flush();
             int i = 0;
             while( wavFinder.getAvailableFileNumber() )
             {

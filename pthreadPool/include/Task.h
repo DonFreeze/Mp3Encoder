@@ -17,11 +17,11 @@ namespace threadpool
     class Task
     {
     public:
-        Task(void (*fn_ptr)(void*), void* arg) : m_fn_ptr( fn_ptr ), m_arg( arg ) {}
+        Task(void (*funcPtr)(void*), void* arg) : funcPtr( funcPtr ), arg( arg ) {}
         void operator()();
         void run();
     private:
-        void( *m_fn_ptr )(void*);
-        void* m_arg;
+        void( *funcPtr )(void*);
+        void* arg;
     };
 }

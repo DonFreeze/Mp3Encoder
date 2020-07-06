@@ -1,5 +1,4 @@
-#ifndef MP3ENCODER_H
-#define MP3ENCODER_H
+#pragma once
 
 #include "FileName.h"
 #include "WavFinder.h"
@@ -21,8 +20,6 @@ namespace mp3encoder
     class Mp3Encoder
     {
         public:
-            Mp3Encoder( );
-            virtual ~Mp3Encoder();
             void startEncoding(string path, size_t numCpu  );
         protected:
             static void encodeWav( void* arg );
@@ -34,5 +31,3 @@ namespace mp3encoder
     };
 }
 
-
-#endif // MP3ENCODER_H

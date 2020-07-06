@@ -8,12 +8,12 @@ ThreadPool::ThreadPool( size_t MaxThreads,  size_t numTasks)
 {
     numThreads = MaxThreads > numTasks ? numTasks : MaxThreads;
     cout << "- Create ThreadPool of size " << numThreads << endl;
-    this->start();
+    start();
 }
 
 ThreadPool::~ThreadPool()
 {
-    this->stop();
+    stop();
 }
 
 
@@ -68,7 +68,7 @@ bool ThreadPool::isRunning()
 void* ThreadPool::executeThread()
 {
     Task* task = NULL;
-    auto id = pthread_self();
+    //auto id = pthread_self();
     //cout << "Starting thread "<< &id << endl;
     while( true )
     {
