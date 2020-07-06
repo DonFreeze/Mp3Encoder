@@ -1,4 +1,5 @@
 #include "Task.h"
+
 using namespace threadpool;
 
 void Task::operator()()
