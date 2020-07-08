@@ -14,25 +14,25 @@ using namespace threadpool;
 
 CondVar::CondVar()
 {
-    pthread_cond_init(&m_cond_var, NULL);
+    pthread_cond_init( &condVar, NULL );
 }
 
 CondVar::~CondVar()
 {
-    pthread_cond_destroy(&m_cond_var);
+    pthread_cond_destroy( &condVar );
 }
 
-void CondVar::wait(pthread_mutex_t* mutex)
+void CondVar::wait( pthread_mutex_t* mutex )
 {
-    pthread_cond_wait(&m_cond_var, mutex);
+    pthread_cond_wait( &condVar, mutex );
 }
 
 void CondVar::signal()
 {
-    pthread_cond_signal(&m_cond_var);
+    pthread_cond_signal( &condVar );
 }
 
 void CondVar::broadcast()
 {
-    pthread_cond_broadcast(&m_cond_var);
+    pthread_cond_broadcast( &condVar );
 }

@@ -14,30 +14,30 @@ using namespace threadpool;
 
 Mutex::Mutex()
 {
-    pthread_mutex_init(&m_lock, NULL);
-    is_locked = false;
+    pthread_mutex_init( &ptMutex, NULL );
+    isLocked = false;
 }
 
 Mutex::~Mutex()
 {
-    while(is_locked);
+    while( isLocked );
     unlock(); // Unlock Mutex after shared resource is safe
-    pthread_mutex_destroy(&m_lock);
+    pthread_mutex_destroy(&ptMutex);
 }
 
 void Mutex::lock()
 {
-    pthread_mutex_lock(&m_lock);
-    is_locked = true;
+    pthread_mutex_lock(&ptMutex);
+    isLocked = true;
 }
 
 void Mutex::unlock()
 {
-    is_locked = false; // do it BEFORE unlocking to avoid race condition
-    pthread_mutex_unlock(&m_lock);
+    isLocked = false; // do it BEFORE unlocking to avoid race condition
+    pthread_mutex_unlock( &ptMutex );
 }
 
-pthread_mutex_t* Mutex::get_mutex_ptr()
+pthread_mutex_t* Mutex::getMutexPtr()
 {
-    return &m_lock;
+    return &ptMutex;
 }
