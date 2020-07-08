@@ -33,8 +33,9 @@ namespace threadpool
         ~ThreadPool();
         void enqueue(Task* task);
         void executeThread();
-        bool isRunning();
+        void waitForThreads();
 
+        int finished;
     private:
         int start();
         void stop();

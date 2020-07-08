@@ -16,9 +16,10 @@ namespace mp3encoder
     {
         public:
             FileName( string path, string name) : path(path), name(name) {}
-            inline string getNameWav() { return this->name; }
             string getNameWavWithPath();
             string getNameMp3WithPath();
+            const char* getCharNameMp3WithPath();
+            const char* getCharNameWavWithPath();
         private:
             string path;
             string name;

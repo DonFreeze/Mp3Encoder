@@ -19,7 +19,6 @@ using namespace mp3encoder;
 int main( int argc, char const *argv[] )
 {
 
-
     cout << "------------------------------------------------------- " << endl;
     cout << "                     WAV TO MP3 Encoder                 " << endl;
     cout << "------------------------------------------------------- " << endl;

@@ -31,3 +31,13 @@ std::string FileName::getNameMp3WithPath()
     return path + "/" + mp3Name;
 #endif // _WIN32
 }
+
+const char* FileName::getCharNameMp3WithPath()
+{
+    return getNameMp3WithPath().c_str();
+}
+
+const char* FileName::getCharNameWavWithPath()
+{
+    return getNameWavWithPath().c_str();
+}

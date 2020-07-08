@@ -24,11 +24,8 @@ void Mp3Encoder::encodeWav( void* arg )
     FileName *fileNamePtr = ( FileName* ) arg;
     int read, write;
 
-    const char* wavFileNameChar= fileNamePtr->getNameWavWithPath().c_str();
-    const char* mp3FileNameChar= fileNamePtr->getNameMp3WithPath().c_str();
-
-    FILE *pcm = fopen(wavFileNameChar, "rb");
-    FILE *mp3 = fopen(mp3FileNameChar, "wb");
+    FILE *wav = fopen(fileNamePtr->getCharNameWavWithPath(), "rb");
+    FILE *mp3 = fopen(fileNamePtr->getCharNameMp3WithPath(), "wb");
 
     const int PCM_SIZE = 8192;
     const int MP3_SIZE = 8192;
@@ -44,13 +41,13 @@ void Mp3Encoder::encodeWav( void* arg )
     if (lame_init_params(lame) < 0)
     {
         fclose(mp3);
-        fclose(pcm);
+        fclose(wav);
     }
     else
     {
         do
         {
-            read = fread(pcm_buffer, 2*sizeof(short int), PCM_SIZE, pcm);
+            read = fread(pcm_buffer, 2*sizeof(short int), PCM_SIZE, wav);
             if( read == 0 )
                 write = lame_encode_flush(lame, mp3_buffer, MP3_SIZE);
             else
@@ -63,20 +60,20 @@ void Mp3Encoder::encodeWav( void* arg )
         cout.flush();
 //mutex
         fclose(mp3);
-        fclose(pcm);
+        fclose(wav);
         lame_close(lame);
    }
 }
 
 void Mp3Encoder::startEncoding( string path )
 {
-    #ifdef _WIN32
-        SYSTEM_INFO sysinfo;
-        GetSystemInfo(&sysinfo);
-        size_t numCPU = sysinfo.dwNumberOfProcessors;
-    #else
-        size_t numCPU = sysconf(_SC_NPROCESSORS_ONLN);
-    #endif // _WIN32
+#ifdef _WIN32
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+    size_t numCPU = sysinfo.dwNumberOfProcessors;
+#else
+    size_t numCPU = sysconf(_SC_NPROCESSORS_ONLN);
+#endif // _WIN32
 
 
     if( wavFinder.findWavInDir( path ) > 0 )
@@ -91,8 +88,11 @@ void Mp3Encoder::startEncoding( string path )
             Task* task = new Task( &encodeWav,(void*) filenamePtr );
             threadPool.enqueue(task);
         }
-        while( threadPool.isRunning() ){}
 
-        cout << endl << "- Encoding completed  " << endl;
+        threadPool.waitForThreads();
+
+
+        cout << "- Encoding completed  " << endl;
+        cout.flush();
     }
 }

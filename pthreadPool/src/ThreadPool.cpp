@@ -16,9 +16,18 @@ using namespace threadpool;
 
 ThreadPool::ThreadPool( size_t MaxThreads,  size_t numTasks )
 {
+
     numThreads = MaxThreads > numTasks ? numTasks : MaxThreads;
     cout << "- Create ThreadPool of size " << numThreads << endl;
-    start();
+    try
+    {
+      start();
+    }
+    catch( std::exception e )
+    {
+        std::cout << e.what() << "\n";
+    }
+
 }
 
 ThreadPool::~ThreadPool()
@@ -38,6 +47,7 @@ void* start_thread( void* arg )
 int ThreadPool::start()
 {
     PoolState = STARTED;
+    ThreadPool::finished = 0;
     int ret = -1;
     for (auto i = 0u; i < numThreads; ++i)
     {
@@ -50,6 +60,7 @@ int ThreadPool::start()
         }
         Threads.push_back(tid);
     }
+
     return 0;
 }
 
@@ -69,21 +80,35 @@ void ThreadPool::stop()
     }
 }
 
-bool ThreadPool::isRunning()
+void ThreadPool::waitForThreads()
 {
-  return   Tasks.size()  > 0 ? true : false;
+    while( true )
+    {
+        if ( finished == Threads.size() )
+        {
+            cout << endl <<"- All threads have finished their work" << endl;
+            cout.flush();
+            break;
+        }
+    }
 }
 
 
 void ThreadPool::executeThread()
 {
     Task* task = NULL;
+    bool alternate = false;
 
     while( true )
     {
         TaskMutex.lock();
         while( ( PoolState != STOPPED ) && ( Tasks.empty() ) )
         {
+            if( !alternate )
+            {
+                alternate = true;
+                ++finished;
+            }
             TaskCondVar.wait( TaskMutex.getMutexPtr() );
         }
 
@@ -91,6 +116,12 @@ void ThreadPool::executeThread()
         {
             TaskMutex.unlock();
             pthread_exit(NULL);
+        }
+
+        if( alternate )
+        {
+            alternate = false;
+            --finished;
         }
 
         task = Tasks.front();
