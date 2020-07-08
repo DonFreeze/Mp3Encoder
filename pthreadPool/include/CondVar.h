@@ -28,11 +28,11 @@ namespace threadpool
     public:
         CondVar();
         ~CondVar();
-        void wait(pthread_mutex_t* mutex);
+        void wait( pthread_mutex_t* mutex );
         void signal();
         void broadcast();
 
     private:
-        pthread_cond_t m_cond_var;
+        pthread_cond_t condVar;
     };
 }

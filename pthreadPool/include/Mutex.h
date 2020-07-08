@@ -31,10 +31,10 @@ namespace threadpool
         ~Mutex();
         void lock();
         void unlock();
-        pthread_mutex_t* get_mutex_ptr();
+        pthread_mutex_t* getMutexPtr();
 
     private:
-        pthread_mutex_t m_lock;
-        volatile bool is_locked;
+        pthread_mutex_t ptMutex;
+        volatile bool isLocked;
     };
 }

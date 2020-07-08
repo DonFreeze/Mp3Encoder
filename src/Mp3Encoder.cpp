@@ -58,9 +58,10 @@ void Mp3Encoder::encodeWav( void* arg )
             fwrite(mp3_buffer, write, 1, mp3);
         } while ( read != 0 );
 
+        // Mutex
         cout << "." ;
         cout.flush();
-
+//mutex
         fclose(mp3);
         fclose(pcm);
         lame_close(lame);

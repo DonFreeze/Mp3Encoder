@@ -14,7 +14,7 @@
 using namespace std;
 using namespace threadpool;
 
-ThreadPool::ThreadPool( size_t MaxThreads,  size_t numTasks)
+ThreadPool::ThreadPool( size_t MaxThreads,  size_t numTasks )
 {
     numThreads = MaxThreads > numTasks ? numTasks : MaxThreads;
     cout << "- Create ThreadPool of size " << numThreads << endl;
@@ -28,16 +28,16 @@ ThreadPool::~ThreadPool()
 
 
 extern "C"
-void* start_thread(void* arg)
+void* start_thread( void* arg )
 {
-    ThreadPool* tp = (ThreadPool*) arg;
-    tp->executeThread();
+    ThreadPool* threadPool = (ThreadPool*) arg;
+    threadPool->executeThread();
     return NULL;
 }
 
 int ThreadPool::start()
 {
-    mPoolState = STARTED;
+    PoolState = STARTED;
     int ret = -1;
     for (auto i = 0u; i < numThreads; ++i)
     {
@@ -48,30 +48,30 @@ int ThreadPool::start()
             cerr << "pthread_create() failed: " << ret << endl;
             return -1;
         }
-        mThreads.push_back(tid);
+        Threads.push_back(tid);
     }
     return 0;
 }
 
 void ThreadPool::stop()
 {
-    mTaskMutex.lock();
-    mPoolState = STOPPED;
-    mTaskMutex.unlock();
+    TaskMutex.lock();
+    PoolState = STOPPED;
+    TaskMutex.unlock();
 
-    mTaskCondVar.broadcast();
+    TaskCondVar.broadcast();
 
-    for(pthread_t thread : mThreads)
+    for( pthread_t thread : Threads )
     {
         void* result;
         pthread_join(thread, &result);
-        mTaskCondVar.broadcast();
+        TaskCondVar.broadcast();
     }
 }
 
 bool ThreadPool::isRunning()
 {
-  return   mTasks.size()  > 0 ? true : false;
+  return   Tasks.size()  > 0 ? true : false;
 }
 
 
@@ -81,32 +81,35 @@ void ThreadPool::executeThread()
 
     while( true )
     {
-        mTaskMutex.lock();
-        while( ( mPoolState != STOPPED ) && ( mTasks.empty() ) )
+        TaskMutex.lock();
+        while( ( PoolState != STOPPED ) && ( Tasks.empty() ) )
         {
-            mTaskCondVar.wait(mTaskMutex.get_mutex_ptr());
+            TaskCondVar.wait( TaskMutex.getMutexPtr() );
         }
 
-        if( mPoolState == STOPPED )
+        if( PoolState == STOPPED )
         {
-            mTaskMutex.unlock();
+            TaskMutex.unlock();
             pthread_exit(NULL);
         }
 
-        task = mTasks.front();
-        mTasks.pop_front();
-        mTaskMutex.unlock();
+        task = Tasks.front();
+        Tasks.pop_front();
+        TaskMutex.unlock();
 
         (*task)();
+
         delete task;
     }
-   // return NULL;
+
 }
 
-void ThreadPool::enqueue(Task* task)
+void ThreadPool::enqueue( Task* task )
 {
-  mTaskMutex.lock();
-  mTasks.push_back( task );
-  mTaskCondVar.signal();
-  mTaskMutex.unlock();
+  TaskMutex.lock();
+
+  Tasks.push_back( task );
+  TaskCondVar.signal();
+
+  TaskMutex.unlock();
 }
