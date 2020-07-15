@@ -7,6 +7,7 @@ bin/
 obj/
 wavFiles/
 wav/
+build/
 
 
 # Ignoring files by extension
