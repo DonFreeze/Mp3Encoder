@@ -1,17 +1,16 @@
 cmake_minimum_required(VERSION 3.10.2)
 
-# set the project name
-project(MP3Encoder)
+project("pthread_pool")
 
-target_sources(MP3Encoder
-    PRIVATE
-        src/CondVar.cpp
-        src/Mutex.cpp
-        src/Task.h
-        src/ThreadPool.cpp
-        include/CondVar.cpp
-        include/Mutex.cpp
-        include/Task.h
-    PUBLIC
-        include/ThreadPool.cpp
+add_library ( pthread_pool 
+              src/CondVar.cpp
+              src/Mutex.cpp
+              src/Task.cpp
+              src/ThreadPool.cpp
 )
+
+target_include_directories( pthread_pool
+                          PUBLIC
+                              include 
+                              )
+

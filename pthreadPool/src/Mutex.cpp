@@ -8,7 +8,7 @@
  *
  */
 
-#include "Mutex.h"
+#include "../include/Mutex.h"
 
 using namespace threadpool;
 

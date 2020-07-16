@@ -9,11 +9,12 @@
 #include <iostream>
 #include <string>
 #include <stdio.h>
+#include <sysinfoapi.h>
 
-#include "Mp3Encoder.h"
-#include "WavFinder.h"
-#include "../lame/lame.h"
-#include "../pthreadPool/include/ThreadPool.h"
+#include "../include/Mp3Encoder.h"
+#include "../include/WavFinder.h"
+#include "../../lib/lame/lame.h"
+#include "../../pthreadPool/include/ThreadPool.h"
 
 using namespace mp3encoder;
 using namespace threadpool;

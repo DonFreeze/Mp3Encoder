@@ -11,7 +11,6 @@
 #include <string>
 #include "FileNameStore.h"
 #include "FileName.h"
-#include "lame.h"
 
 namespace mp3encoder
 {

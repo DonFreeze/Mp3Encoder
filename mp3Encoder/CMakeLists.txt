@@ -1,0 +1,28 @@
+cmake_minimum_required(VERSION 3.10.2)
+
+project("mp3_encoder")
+
+add_subdirectory( ../pthreadPool pthreadPool )
+
+add_library( mp3_encoder
+            src/FileName.cpp
+            src/FileNameStore.cpp
+            src/Mp3Encoder.cpp
+            src/WavFinder.cpp
+)
+
+target_include_directories( mp3_encoder
+                        PUBLIC 
+                            include
+                            ${pthreadPool_SOURCE_DIR}
+                            ../lib/lame
+)
+
+target_link_libraries( mp3_encoder
+                    PRIVATE
+                      pthread_pool
+                      ${mp3_encoder_SOURCE_DIR}/../lib/lame/libmp3lame.lib
+                       # ${CMAKE_SOURCE_DIR}/lib/lame/libmp3lame.dll
+)
+
+

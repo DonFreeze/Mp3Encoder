@@ -5,7 +5,7 @@
  *  file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "FileName.h"
+#include "../include/FileName.h"
 #include <iostream>
 #include <string>
 

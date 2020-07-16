@@ -10,7 +10,7 @@
 #include <iostream>
 #include <string>
 
-#include "Mp3Encoder.h"
+#include "mp3Encoder/include/Mp3Encoder.h"
 
 using namespace std;
 using namespace mp3encoder;
