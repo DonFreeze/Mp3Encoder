@@ -23,18 +23,3 @@ target_include_directories(  ${PROJECT_NAME}
 target_link_libraries( ${PROJECT_NAME}
                         mp3_encoder
 )
-
-# cmake .. -G "MinGW Makefiles"
-# mingw32-make.exe
-
-# Link static Lame library
-#if (WIN32)
-#    set(LAME_LIB "${CMAKE_SOURCE_DIR}/lame/libmp3lame.lib")
-#endif (WIN32)
-#if (MINGW)
-#    set(LAME_LIB "${CMAKE_SOURCE_DIR}/lame/libmp3lame.lib")
-#endif (MINGW)
-#if (UNIX)
-#    set(LAME_LIB "${CMAKE_SOURCE_DIR}/lame/libmp3lame.a")
-#endif (UNIX)
-

@@ -20,9 +20,6 @@ target_include_directories( mp3_encoder
 
 target_link_libraries( mp3_encoder
                     PRIVATE
-                      pthread_pool
-                      ${mp3_encoder_SOURCE_DIR}/../lib/lame/libmp3lame.lib
-                       # ${CMAKE_SOURCE_DIR}/lib/lame/libmp3lame.dll
+                    pthread_pool
+                    ${mp3_encoder_SOURCE_DIR}/../lib/lame/libmp3lame.a
 )
-
-
