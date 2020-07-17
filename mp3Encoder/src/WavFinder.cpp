@@ -13,9 +13,9 @@
 #include <locale.h>
 #include <fstream>
 
-#include "FileName.h"
-#include "FileNameStore.h"
-#include "WavFinder.h"
+#include "../include/FileName.h"
+#include "../include/FileNameStore.h"
+#include "../include/WavFinder.h"
 
 using namespace mp3encoder;
 using namespace std;

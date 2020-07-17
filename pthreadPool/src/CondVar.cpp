@@ -8,7 +8,7 @@
  *
  */
 
-#include "CondVar.h"
+#include "../include/CondVar.h"
 
 using namespace threadpool;
 

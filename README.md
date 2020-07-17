@@ -8,10 +8,17 @@ The application will search wav files in a given directory, encodes these files 
 
 
 2. Installation and Usage
-  Compile this project using your mingw32 on Windows and GNU compiler on Linux.
+ Compile this project using your mingw32 on Windows and GNU compiler on Linux.
+  Windows:
 
-  Run the program by giving an directory with wav files as argument:
-    Mp3Encoder C:\Users\XXX\Documents\WavFiles
+    mkdir build
+    cd build
+    cmake .. -G "MinGW Makefiles"
+    mingw32-make
+
+    .\MP3Encoder.exe ..\wavFiles\
+
+  Linux:
 
 3. Project status 
   - Features
@@ -21,7 +28,7 @@ The application will search wav files in a given directory, encodes these files 
     - Usage of multithreading with pthread and thread pool.
     - Maximal thread number is limited to number of CPU cores 
     - Minimal thread number depence of the amount of wav files to encode 
+    - Portable and automated build using cmake
  
   - Open Points
-    - Portable and automated build using cmake
-    - Error handling is not completed
+    - Error/ exception handling is not completed

@@ -8,7 +8,7 @@
  *
  */
 
-#include "ThreadPool.h"
+#include "../include/ThreadPool.h"
 #include <iostream>
 
 using namespace std;
