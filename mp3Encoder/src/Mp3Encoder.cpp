@@ -9,7 +9,7 @@
 #include <iostream>
 #include <string>
 #include <stdio.h>
-#include <sysinfoapi.h>
+
 
 #include "../include/Mp3Encoder.h"
 #include "../include/WavFinder.h"

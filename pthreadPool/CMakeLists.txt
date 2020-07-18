@@ -12,5 +12,5 @@ add_library ( pthread_pool
 target_include_directories( pthread_pool
                           PUBLIC
                               include 
-                              )
+)
 
