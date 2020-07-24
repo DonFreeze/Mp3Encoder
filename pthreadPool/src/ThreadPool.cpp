@@ -9,138 +9,119 @@
  */
 
 #include "../include/ThreadPool.h"
-#include <iostream>
 
-using namespace std;
-using namespace threadpool;
+#include <iterator>
+#include <algorithm>
 
-ThreadPool::ThreadPool( size_t MaxThreads,  size_t numTasks )
+namespace threadpool
 {
-
-    numThreads = MaxThreads > numTasks ? numTasks : MaxThreads;
-    cout << "- Create ThreadPool of size " << numThreads << endl;
-    try
+    ThreadPool::ThreadPool(std::size_t threadCount)
+        : threadsWaiting(0),
+        terminate(false),
+        paused(false)
     {
-      start();
+        if (threadCount==0)
+            threadCount = std::thread::hardware_concurrency();
+        // prevent potential reallocation, thereby screwing up all our hopes and dreams
+        threads.reserve(threadCount);
+        std::generate_n(std::back_inserter(threads), threadCount, [this]() { return std::thread{ threadTask, this }; });
     }
-    catch( std::exception e )
+
+    ThreadPool::~ThreadPool()
     {
-        std::cout << e.what() << "\n";
-    }
+        clear();
 
-}
+        // tell threads to stop when they can
+        terminate = true;
+        jobsAvailable.notify_all();
 
-ThreadPool::~ThreadPool()
-{
-    stop();
-}
-
-
-extern "C"
-void* start_thread( void* arg )
-{
-    ThreadPool* threadPool = (ThreadPool*) arg;
-    threadPool->executeThread();
-    return NULL;
-}
-
-int ThreadPool::start()
-{
-    PoolState = STARTED;
-    ThreadPool::finished = 0;
-    int ret = -1;
-    for (auto i = 0u; i < numThreads; ++i)
-    {
-        pthread_t tid;
-        ret = pthread_create(&tid, NULL, start_thread, (void*) this);
-        if (ret != 0)
+        // wait for all threads to finish
+        for (auto& t : threads)
         {
-            cerr << "pthread_create() failed: " << ret << endl;
-            return -1;
-        }
-        Threads.push_back(tid);
-    }
-
-    return 0;
-}
-
-void ThreadPool::stop()
-{
-    TaskMutex.lock();
-    PoolState = STOPPED;
-    TaskMutex.unlock();
-
-    TaskCondVar.broadcast();
-
-    for( pthread_t thread : Threads )
-    {
-        void* result;
-        pthread_join(thread, &result);
-        TaskCondVar.broadcast();
-    }
-}
-
-void ThreadPool::waitForThreads()
-{
-    while( true )
-    {
-        if ( finished == Threads.size() )
-        {
-            cout << endl <<"- All threads have finished their work" << endl;
-            cout.flush();
-            break;
+            if (t.joinable())
+                t.join();
         }
     }
-}
 
-
-void ThreadPool::executeThread()
-{
-    Task* task = NULL;
-    bool alternate = false;
-
-    while( true )
+    std::size_t ThreadPool::threadCount() const
     {
-        TaskMutex.lock();
-        while( ( PoolState != STOPPED ) && ( Tasks.empty() ) )
+        return threads.size();
+    }
+
+    std::size_t ThreadPool::waitingJobs() const
+    {
+        std::lock_guard<std::mutex> jobLock(jobsMutex);
+        return jobs.size();
+    }
+
+    ThreadPool::Ids ThreadPool::ids() const
+    {
+        Ids ret(threads.size());
+
+        std::transform(threads.begin(), threads.end(), ret.begin(), [](auto& t) { return t.get_id(); });
+
+        return ret;
+    }
+
+    void ThreadPool::clear()
+    {
+        std::lock_guard<std::mutex> lock{ jobsMutex };
+
+        while (!jobs.empty())
+            jobs.pop();
+    }
+
+    void ThreadPool::pause(bool state)
+    {
+        paused = state;
+
+        if (!paused)
+            jobsAvailable.notify_all();
+    }
+
+    void ThreadPool::wait()
+    {
+        // we're done waiting once all threads are waiting
+        while (threadsWaiting != threads.size())
         {
-            if( !alternate )
+            
+        }
+    }
+
+    void ThreadPool::threadTask(ThreadPool* pool)
+    {
+        // loop until we break (to keep thread alive)
+        while (true)
+        {
+            // if we need to finish, let's do it before we get into
+            // all the expensive synchronization stuff
+            if (pool->terminate)
+                break;
+
+            std::unique_lock<std::mutex> jobsLock{ pool->jobsMutex };
+
+            // if there are no more jobs, or we're paused, go into waiting mode
+            if (pool->jobs.empty() || pool->paused)
             {
-                alternate = true;
-                ++finished;
+                ++pool->threadsWaiting;
+                pool->jobsAvailable.wait(jobsLock, [&]()
+                {
+                    return pool->terminate || !(pool->jobs.empty() || pool->paused);
+                });
+                --pool->threadsWaiting;
             }
-            TaskCondVar.wait( TaskMutex.getMutexPtr() );
+
+            // check once more before grabbing a job, since we want to stop ASAP
+            if (pool->terminate)
+                break;
+
+            // take next job
+            auto job = std::move(pool->jobs.front());
+            pool->jobs.pop();
+
+            jobsLock.unlock();
+
+            job();
         }
-
-        if( PoolState == STOPPED )
-        {
-            TaskMutex.unlock();
-            pthread_exit(NULL);
-        }
-
-        if( alternate )
-        {
-            alternate = false;
-            --finished;
-        }
-
-        task = Tasks.front();
-        Tasks.pop_front();
-        TaskMutex.unlock();
-
-        (*task)();
-
-        delete task;
     }
-
-}
-
-void ThreadPool::enqueue( Task* task )
-{
-  TaskMutex.lock();
-
-  Tasks.push_back( task );
-  TaskCondVar.signal();
-
-  TaskMutex.unlock();
 }

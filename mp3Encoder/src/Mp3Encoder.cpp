@@ -7,9 +7,17 @@
  */
 
 #include <iostream>
-#include <string>
+
 #include <stdio.h>
+#include <string>
 #include <sysinfoapi.h>
+
+#include <fstream>
+
+#include <sstream>
+#include <future>
+#include <functional>
+#include <stdexcept>
 
 #include "../include/Mp3Encoder.h"
 #include "../include/WavFinder.h"
@@ -20,83 +28,116 @@ using namespace mp3encoder;
 using namespace threadpool;
 using namespace std;
 
-void Mp3Encoder::encodeWav( void* arg )
+bool Mp3Encoder::encodeWav( const string& input )
 {
-    try
+    const size_t IN_SAMPLERATE = 44100; // default sample-rate
+    const size_t PCM_SIZE = 8192;
+    const size_t MP3_SIZE = 8192;
+    const size_t LAME_GOOD = 5;
+    int16_t pcm_buffer[PCM_SIZE * 2];
+    unsigned char mp3_buffer[MP3_SIZE];
+    const size_t bytes_per_sample = 2 * sizeof(int16_t); // stereo signal, 16 bits
+    const string ext = {"mp3"};
+
+    string output(input);
+    output.replace(output.end() - ext.length(), output.end(), ext);
+    std::ifstream wav;
+    std::ofstream mp3;
+
+
+    try 
+    {   
+        wav.open( input,  ios::in | ios::binary);
+        mp3.open( output,  ios::out | ios::binary);
+    }
+    catch (std::ifstream::failure e)
     {
-        FileName *fileNamePtr = ( FileName* ) arg;
-        int read, write;
+        cout << "Error opening input/output file: " << e << '\n';
+        return false;
+    }
 
-        FILE *wav = fopen(fileNamePtr->getCharNameWavWithPath(), "rb");
-        FILE *mp3 = fopen(fileNamePtr->getCharNameMp3WithPath(), "wb");
+    lame_t lame = lame_init();
+    lame_set_in_samplerate(lame, IN_SAMPLERATE);
+    lame_set_VBR(lame, vbr_default);
+    lame_set_VBR_q(lame, LAME_GOOD);
 
-        const int PCM_SIZE = 8192;
-        const int MP3_SIZE = 8192;
+    if (lame_init_params(lame) < 0) 
+    {
+        wav.close();
+        mp3.close();
+        return false;
+    }
 
-        short int pcm_buffer[PCM_SIZE*2];
-        unsigned char mp3_buffer[MP3_SIZE];
-
-        lame_t lame = lame_init();
-        lame_set_in_samplerate(lame, 48000);
-        lame_set_VBR(lame, vbr_default);
-        lame_set_quality(lame, 5);
-
-        if (lame_init_params(lame) < 0)
-        {
-            fclose(mp3);
-            fclose(wav);
-        }
+    while ( wav.good() ) 
+    {
+        int write = 0;
+        wav.read(reinterpret_cast<char*>(pcm_buffer), sizeof(pcm_buffer));
+        int read = wav.gcount() / bytes_per_sample;
+        if (read == 0)
+            write = lame_encode_flush(lame, mp3_buffer, MP3_SIZE);
         else
-        {
-            do
-            {
-                read = fread(pcm_buffer, 2*sizeof(short int), PCM_SIZE, wav);
-                if( read == 0 )
-                    write = lame_encode_flush(lame, mp3_buffer, MP3_SIZE);
-                else
-                    write = lame_encode_buffer_interleaved(lame, pcm_buffer, read, mp3_buffer, MP3_SIZE);
-                fwrite(mp3_buffer, write, 1, mp3);
-            } while ( read != 0 );
+            write = lame_encode_buffer_interleaved(lame, pcm_buffer, read, mp3_buffer, MP3_SIZE);
 
-            // Mutex
-            cout << "." ;
-            cout.flush();
-            //mutex
-            fclose(mp3);
-            fclose(wav);
-            lame_close(lame);
-        }
+        mp3.write(reinterpret_cast<char*>(mp3_buffer), write);
     }
-    catch( std::exception e )
-    {
-        std::cout << e.what() << "\n";
-    }
+
+    cout << "." ;
+    cout.flush();
+
+
+    wav.close();
+    mp3.close();
+
+    lame_close(lame);
+    return true;
+
+   
 }
 
 void Mp3Encoder::startEncoding( string path )
 {
-#ifdef _WIN32
-    SYSTEM_INFO sysinfo;
-    GetSystemInfo(&sysinfo);
-    size_t numCPU = sysinfo.dwNumberOfProcessors;
-#else
-    size_t numCPU = sysconf(_SC_NPROCESSORS_ONLN);
-#endif // _WIN32
-
     if( wavFinder.findWavInDir( path ) > 0 )
     {
-        ThreadPool threadPool( numCPU, wavFinder.getAvailableFileNumber() );
-        cout << "- Start to encode files:  ";
-        cout.flush();
+        ThreadPool threadPool;
 
-        while( wavFinder.getAvailableFileNumber() )
+        threadPool.pause(true);
+        std::vector<std::tuple<int, std::future<bool> > > results;
+
+        int fileNumber = wavFinder.getAvailableFileNumber();
+         cout << "- Start to encode " << fileNumber <<  " files: "  ;
+        try 
         {
-            FileName* filenamePtr = wavFinder.getNextWavFilePtr();
-            Task* task = new Task( &encodeWav,(void*) filenamePtr );
-            threadPool.enqueue(task);
+            int i = 0;
+            while ( wavFinder.getAvailableFileNumber() )
+            {
+                FileName filename = *wavFinder.getNextWavFilePtr();
+                //  encodeWav( filename.getNameWavWithPath() );
+                // threadPool.add( encodeWav, filename );
+             results.emplace_back( i,  threadPool.add( encodeWav, filename.getNameWavWithPath() )); 
+             ++i;
+             threadPool.pause(false);    
+            }
+        }           
+        catch (std::runtime_error &e) {
+            cout << e.what();
+            exit(1);
         }
 
-        threadPool.waitForThreads();
+        threadPool.wait();
+
+/*
+       while( threadPool.waitingJobs() != fileNumber)
+        {
+            cout << " Waiting jobs: "<< threadPool.waitingJobs()  <<" of " << fileNumber << endl;
+        }*/
+
+
+        cout << std::endl;
+        for (auto& res : results)
+        {
+            cout << get<0>(res) << ": " << get<1>(res).get() << endl;
+        }
+        cout << std::endl;
 
         cout << "- Encoding completed  " << endl;
         cout.flush();
