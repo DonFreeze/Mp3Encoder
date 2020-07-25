@@ -8,6 +8,7 @@ obj/
 wavFiles/
 wav/
 build/
+.vscode
 
 
 # Ignoring files by extension

@@ -24,7 +24,7 @@ namespace mp3encoder
             WavFinder wavFinder;
             FileNameStore fileNameStore;
 
-            static void encodeWav( void* arg );
+            static bool encodeWav(const string& input );
     };
 }
 

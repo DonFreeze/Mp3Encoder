@@ -34,7 +34,7 @@ int main( int argc, char const *argv[] )
     {
         encoder.startEncoding( static_cast<string>( argv[1] ) ) ;
     }
-    catch( exception e )
+    catch( exception &e )
     {
         cout << e.what() << "\n";
     }
