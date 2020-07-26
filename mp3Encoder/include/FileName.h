@@ -9,20 +9,20 @@
 
 #include <string>
 
-using namespace std;
+
 namespace mp3encoder
 {
     class FileName
     {
         public:
-            FileName( string path, string name) : path(path), name(name) {}
-            string getNameWavWithPath();
-            string getNameMp3WithPath();
-            const char* getCharNameMp3WithPath();
-            const char* getCharNameWavWithPath();
+            FileName( const std::string path, const std::string name) : path(path), name(name) {}
+            std::string getWavWithPath();
+            std::string getMp3WithPath();
+            std::string getWav();
+            std::string getMp3();
         private:
-            string path;
-            string name;
+            const std::string path;
+            const std::string name;
     };
 
 }

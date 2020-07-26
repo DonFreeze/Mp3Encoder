@@ -11,20 +11,19 @@
 #include <string>
 
 #include "WavFinder.h"
-#include "FileNameStore.h"
+#include "FileName.h"
 
 namespace mp3encoder
 {
     class Mp3Encoder
     {
         public:
-            void startEncoding( string path );
+            void startEncoding( const std::string path );
 
         private:
             WavFinder wavFinder;
-            FileNameStore fileNameStore;
 
-            static bool encodeWav(const string& input );
+            static bool encodeWav( FileName& fileName );
     };
 }
 

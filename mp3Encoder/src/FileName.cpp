@@ -11,7 +11,7 @@
 
 using namespace mp3encoder;
 
-std::string FileName::getNameWavWithPath()
+std::string FileName::getWavWithPath()
 {
 #ifdef _WIN32
    return path + "\\" + name;
@@ -20,7 +20,7 @@ std::string FileName::getNameWavWithPath()
 #endif // _WIN32
 }
 
-std::string FileName::getNameMp3WithPath()
+std::string FileName::getMp3WithPath()
 {
     std::string mp3Name = name;
     mp3Name.replace( mp3Name.end()-3, mp3Name.end(), "mp3" );
@@ -32,12 +32,14 @@ std::string FileName::getNameMp3WithPath()
 #endif // _WIN32
 }
 
-const char* FileName::getCharNameMp3WithPath()
+std::string FileName::getWav()
 {
-    return getNameMp3WithPath().c_str();
+   return name;
 }
 
-const char* FileName::getCharNameWavWithPath()
+std::string FileName::getMp3()
 {
-    return getNameWavWithPath().c_str();
+    std::string mp3Name = name;
+    mp3Name.replace( mp3Name.end()-3, mp3Name.end(), "mp3" );
+    return  mp3Name;
 }

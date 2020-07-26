@@ -21,7 +21,7 @@ using namespace mp3encoder;
 using namespace std;
 
 
-unsigned int WavFinder::findWavInDir(std::string directory)
+unsigned int WavFinder::findWavInDir( const std::string directory )
 {
     DIR *d;
     struct dirent *dir;
@@ -45,7 +45,7 @@ unsigned int WavFinder::findWavInDir(std::string directory)
 }
 
 
-bool WavFinder::isWav( string fileName )
+bool WavFinder::isWav( const string fileName )
 {
     bool ret = false;
 

@@ -10,17 +10,16 @@
 #include <vector>
 #include "FileName.h"
 
-using namespace std;
-
 namespace mp3encoder
 {
     class FileNameStore
     {
         public:
-            void storeFileName( FileName& fileName );
-            inline int getNumberOfFiles() { return this->fileNameList.size(); }
-            FileName* getNextFileNamePtr();
+            void storeFileName( FileName& name );
+            inline int getNumberOfFiles() { return names.size(); }
+            FileName* pullNextNamePtr();
+
         private:
-            vector< FileName* > fileNameList;
+            std::vector<FileName*> names;
     };
 }

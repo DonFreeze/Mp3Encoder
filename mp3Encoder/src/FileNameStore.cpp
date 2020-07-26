@@ -14,15 +14,15 @@ using namespace std;
 using namespace mp3encoder;
 
 
-void FileNameStore::storeFileName( FileName& fileName )
+void FileNameStore::storeFileName( FileName& name )
 {
-    fileNameList.push_back(&fileName);
+    names.push_back( &name );
 }
 
-FileName* FileNameStore::getNextFileNamePtr()
+FileName* FileNameStore::pullNextNamePtr()
 {
-    FileName* ret = fileNameList.back();
-    fileNameList.pop_back();
+    FileName* ret = names.back();
+    names.pop_back();
 
     return ret;
 }
