@@ -17,11 +17,11 @@ using namespace threadpool;
 using namespace std;
 
 ThreadPool::ThreadPool( size_t threadCount )
-    : threadsWaiting(0),
+    : threadsWaiting(0u),
     terminate(false),
     paused(false)
 {
-    if( threadCount == 0 )
+    if( threadCount == 0u )
     {
         threadCount = thread::hardware_concurrency();
     }

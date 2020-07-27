@@ -64,10 +64,10 @@ bool Mp3Encoder::encodeWav( FileName& fileName )
 
     while ( wav.good() ) 
     {
-        int write = 0;
+        int write = 0u;
         wav.read( reinterpret_cast<char*>(pcm_buffer), sizeof(pcm_buffer) );
         int read = wav.gcount() / bytes_per_sample;
-        if (read == 0)
+        if( read == 0u )
         {
             write = lame_encode_flush( lame, mp3_buffer, MP3_SIZE );
         }
@@ -90,45 +90,44 @@ bool Mp3Encoder::encodeWav( FileName& fileName )
 
 void Mp3Encoder::startEncoding( const string path )
 {
-    if( wavFinder.findWavInDir( path ) > 0 )
+    try
     {
-        ThreadPool threadPool;
-
-        threadPool.pause(true);
-        vector<tuple< string, future<bool>>> results;
-
-        int fileNumber = wavFinder.getAvailableFileNumber();
-        cout << "- Start to encode " << fileNumber << " files: ";
-        try 
-        {
-            while( wavFinder.getAvailableFileNumber() )
-            {
-                FileName filename = *wavFinder.getNextWavFilePtr();
-                results.emplace_back( filename.getWav(), threadPool.add( encodeWav, filename ) ); 
-                threadPool.pause( false );    
-            }
-        }           
-        catch( runtime_error &e ) 
-        {
-            cout << e.what();
-            exit( 1 );
-        }
-
-        threadPool.wait();
-
-        for( auto& res : results )
-        {
-            if( get<1>(res).get() == false )
-            {
-                cout << "Failed to encode file: " << get<0>(res) << endl;
-            }            
-        }
-
-        cout << endl << "- Encoding completed  " << endl;
-        cout.flush();
+        wavFinder.findWavInDir( path ) ;
     }
-    else
+    catch( const exception& e )
     {
-        throw "-> Error: Directory does not contain .wav files";
+        cout << e.what() << endl;
+        exit( 1 );
     }
+
+    cout << "- Start to encode " << wavFinder.getAvailableFileNumber() << " files: ";
+    ThreadPool threadPool;
+    threadPool.pause(true);
+    vector<tuple< string, future<bool>>> results;
+    
+    try 
+    {
+        while( wavFinder.getAvailableFileNumber() )
+        {
+            FileName filename = *wavFinder.getNextWavFilePtr();
+            results.emplace_back( filename.getWav(), threadPool.add( encodeWav, filename ) ); 
+            threadPool.pause( false );    
+        }
+    }           
+    catch( runtime_error &e ) 
+    {
+        cout  << "Error: " << e.what() << endl;
+        exit( 1 );
+    }
+
+    threadPool.wait();
+    for( auto& res : results )
+    {
+        if( get<1>(res).get() == false )
+        {
+            cout << "Failed to encode file: " << get<0>(res) << endl;
+        }            
+    }
+
+    cout << endl << "- Encoding completed  " << endl;   
 }

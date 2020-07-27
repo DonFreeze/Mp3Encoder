@@ -21,46 +21,52 @@ using namespace mp3encoder;
 using namespace std;
 
 
-unsigned int WavFinder::findWavInDir( const std::string directory )
+unsigned int WavFinder::findWavInDir( const string directory )
 {
     DIR *d;
     struct dirent *dir;
-    int foundWavNumber = 0;
     cout << "- Search directory: " << directory << endl;
+
     d = opendir( directory.c_str() );
-    if( d )
+
+    if( !d )
     {
-        while( (dir = readdir(d)) != NULL )
+        throw runtime_error("Unable to open directory.");
+    }    
+
+    while( (dir = readdir(d)) != NULL )
+    {
+        if( isWav( static_cast<string>(dir->d_name) ) )
         {
-            if( isWav( static_cast<string>(dir->d_name) ) )
-            {
-                FileName *fileNamePtr = new FileName( directory , static_cast<string>(dir->d_name) );
-                fileStore.storeFileName( *fileNamePtr );
-                ++foundWavNumber;
-            }
+            FileName *fileNamePtr = new FileName( directory , static_cast<string>(dir->d_name) );
+            fileStore.storeFileName( *fileNamePtr );
         }
     }
-    cout << "- Found " << foundWavNumber << " wav files" << endl;
-    return foundWavNumber;
+   
+    if( closedir(d) != 0 )
+    {
+        throw runtime_error("Unable to close directory.");
+    }
+
+    cout << "- Found " << getAvailableFileNumber() << " wav files" << endl;
+    return getAvailableFileNumber();
 }
 
 
 bool WavFinder::isWav( const string fileName )
 {
-    bool ret = false;
-
     size_t size = fileName.size();
 
-    if (size >= 4 &&
+    if( size >= 4 &&
         fileName.at( size-4 ) == '.' &&
         fileName.at( size-3 ) == 'w' &&
         fileName.at( size-2 ) == 'a' &&
-        fileName.at( size-1 ) == 'v')
+        fileName.at( size-1 ) == 'v' )
     {
-      ret = true;
+      return true;
     }
 
-   return ret;
+   return false;
 }
 
 unsigned int WavFinder::getAvailableFileNumber()

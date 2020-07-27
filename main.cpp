@@ -36,11 +36,11 @@ int main( int argc, char const *argv[] )
     }
     catch( exception &e )
     {
-        cout << e.what() << "\n";
+        cout << e.what() << endl;
     }
     catch( const char* e )
     {
-        cout << e << "\n";
+        cout << e << endl;
     }
     return 0;
 }
