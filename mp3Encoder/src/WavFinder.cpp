@@ -31,7 +31,7 @@ unsigned int WavFinder::findWavInDir( const string directory )
 
     if( !d )
     {
-        throw runtime_error("Unable to open directory.");
+        throw runtime_error("-> Unable to open directory.");
     }    
 
     while( (dir = readdir(d)) != NULL )
@@ -45,7 +45,7 @@ unsigned int WavFinder::findWavInDir( const string directory )
    
     if( closedir(d) != 0 )
     {
-        throw runtime_error("Unable to close directory.");
+        throw runtime_error("-> Unable to close directory.");
     }
 
     cout << "- Found " << getAvailableFileNumber() << " wav files" << endl;

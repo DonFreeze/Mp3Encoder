@@ -4,8 +4,8 @@ The application will search for wav files in a given directory, encodes these fi
 
 1. Prerequisite
 
-  - This project uses the Lame encoder library. You need to build the library and replace the lame library file in the lib folder.
-  - Also this project requires C++11 or higher.
+  - This project uses the Lame encoder library. You may need to build the library and replace the lame library file in the lib folder.
+  - Also this project requires C++14 or higher.
 
 2. Installation and Usage
 

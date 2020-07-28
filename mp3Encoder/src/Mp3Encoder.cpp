@@ -100,34 +100,38 @@ void Mp3Encoder::startEncoding( const string path )
         exit( 1 );
     }
 
-    cout << "- Start to encode " << wavFinder.getAvailableFileNumber() << " files: ";
-    ThreadPool threadPool;
-    threadPool.pause(true);
-    vector<tuple< string, future<bool>>> results;
+    if( wavFinder.getAvailableFileNumber() > 0u )
+    {  
+        cout << "- Start to encode " << wavFinder.getAvailableFileNumber() << " files: ";
+        ThreadPool threadPool;
+        threadPool.pause(true);
+        vector<tuple< string, future<bool>>> results;
     
-    try 
-    {
-        while( wavFinder.getAvailableFileNumber() )
+        try 
         {
-            FileName filename = *wavFinder.getNextWavFilePtr();
-            results.emplace_back( filename.getWav(), threadPool.add( encodeWav, filename ) ); 
-            threadPool.pause( false );    
+            while( wavFinder.getAvailableFileNumber() )
+            {
+                FileName filename = *wavFinder.getNextWavFilePtr();
+                results.emplace_back( filename.getWav(), threadPool.add( encodeWav, filename ) ); 
+                threadPool.pause( false );    
+            }
+        }           
+        catch( runtime_error &e ) 
+        {
+            cout << e.what() << endl;
+            exit( 1 );
         }
-    }           
-    catch( runtime_error &e ) 
-    {
-        cout  << "Error: " << e.what() << endl;
-        exit( 1 );
-    }
 
-    threadPool.wait();
-    for( auto& res : results )
-    {
-        if( get<1>(res).get() == false )
+        threadPool.wait();
+
+        for( auto& res : results )
         {
-            cout << "Failed to encode file: " << get<0>(res) << endl;
-        }            
-    }
+            if( get<1>(res).get() == false )
+            {
+                cout << "-> Failed to encode file: " << get<0>(res) << endl;
+            }            
+        }
 
-    cout << endl << "- Encoding completed  " << endl;   
+        cout << endl << "- Encoding completed  " << endl;  
+    } 
 }

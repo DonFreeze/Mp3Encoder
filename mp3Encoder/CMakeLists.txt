@@ -18,8 +18,18 @@ target_include_directories( mp3_encoder
                             ../lib/lame
 )
 
-target_link_libraries( mp3_encoder
+
+IF (WIN32)
+    target_link_libraries( mp3_encoder
+                            PRIVATE
+                            thread_pool
+                            ${mp3_encoder_SOURCE_DIR}/../lib/lame/libmp3lame.a
+    )
+ELSE()
+    target_link_libraries( mp3_encoder
                     PRIVATE
                     thread_pool
-                    ${mp3_encoder_SOURCE_DIR}/../lib/lame/libmp3lame.a
+                    ${mp3_encoder_SOURCE_DIR}/../lib/lame/libmp3lame_linux.a
 )
+ENDIF()
+

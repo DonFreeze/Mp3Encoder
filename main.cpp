@@ -29,18 +29,15 @@ int main( int argc, char const *argv[] )
         return -1;
     }
 
-    Mp3Encoder encoder;
     try
     {
+        Mp3Encoder encoder;
         encoder.startEncoding( static_cast<string>( argv[1] ) ) ;
     }
     catch( exception &e )
     {
         cout << e.what() << endl;
     }
-    catch( const char* e )
-    {
-        cout << e << endl;
-    }
+
     return 0;
 }
